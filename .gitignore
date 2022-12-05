@@ -1,0 +1,9 @@
+# Default ignored files
+/shelf/
+/.idea/
+# Datasource local storage ignored files
+/../../../../../../../../:\Users\valer\Documents\UNI\Masterarbeit\evalues\.idea/dataSources/
+/dataSources.local.xml
+# Editor-based HTTP Client requests
+/httpRequests/
+/target/

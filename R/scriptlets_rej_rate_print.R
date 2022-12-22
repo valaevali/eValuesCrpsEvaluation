@@ -2,6 +2,25 @@
 # devtools::install_github("valaevali/eValuesCrps")
 library("eValuesCrps")
 
+n.it <- 1000
+
+dt.u.f.10 <- sim_e_values(n.obs = 10, n.it = n.it, loosing.power.only = FALSE, usual.forecasts = TRUE)
+dt.u.f.25 <- sim_e_values(n.obs = 25, n.it = n.it, loosing.power.only = FALSE, usual.forecasts = TRUE)
+dt.u.f.50 <- sim_e_values(n.obs = 50, n.it = n.it, loosing.power.only = FALSE, usual.forecasts = TRUE)
+dt.u.f.100 <- sim_e_values(n.obs = 100, n.it = n.it, loosing.power.only = FALSE, usual.forecasts = TRUE)
+dt.u.f.300 <- sim_e_values(n.obs = 300, n.it = n.it, loosing.power.only = FALSE, usual.forecasts = TRUE)
+
+# f.dt.u.f.300 <- getFile("/target/run-300-1000-2022-12-22T16-19-34.rds")
+# f.dt.u.f.100 <- getFile("/target/run-100-1000-2022-12-22T15-58-31.rds")
+# f.dt.u.f.50 <- getFile("/target/run-50-1000-2022-12-22T15-54-30.rds")
+# f.dt.u.f.25 <- getFile("/target/run-25-1000-2022-12-22T18-56-51.rds")
+# f.dt.u.f.10 <- getFile("/target/run-10-1000-2022-12-22T18-56-12.rds")
+f.dt.u.f.300 <- dt.u.f.300
+f.dt.u.f.100 <- dt.u.f.100
+f.dt.u.f.50 <- dt.u.f.50
+f.dt.u.f.25 <- dt.u.f.25
+f.dt.u.f.10 <- dt.u.f.10
+
 print_further_forecasts <- function(dt.f, f, g) {
   per.clim <- as.data.frame(t(dt.f %>%
                                 filter(names.F == f & names.G == g) %>%
@@ -15,7 +34,7 @@ print_further_forecasts <- function(dt.f, f, g) {
     arrange(n_obs)
   p <- ggplot2::ggplot(to.print, ggplot2::aes(x = n_obs, y = rej_rate, color = which)) +
     ggplot2::geom_line(ggplot2::aes(group = which), size = 0.5) +
-    ggplot2::scale_x_continuous(limits = c(50, 300), breaks = c(50, 100, 300)) +
+    ggplot2::scale_x_continuous(limits = c(10, 300), breaks = c(10, 25, 50, 100, 300)) +
     ggplot2::scale_y_continuous(limits = c(0, 100)) +
     ggplot2::scale_colour_manual(values = c("blue", "cornflowerblue", "cyan", "darkgreen", "darkolivegreen3", "red"), name = NULL) +
     ggplot2::geom_line(data = filter(to.print, which == "p.value"), size = 1) +
@@ -27,7 +46,7 @@ print_further_forecasts <- function(dt.f, f, g) {
   return(p)
 }
 
-print_for_each_k_lambdas <- function(dt.f, n.obs) {
+print_for_each_k_lambdas <- function(dt.f, n.it) {
   cl.pe <- print_further_forecasts(dt.f, 'climatological', 'perfect')
   cl.sr <- print_further_forecasts(dt.f, 'climatological', 'sign-reversed')
   cl.un <- print_further_forecasts(dt.f, 'climatological', 'unfocused')
@@ -44,7 +63,7 @@ print_for_each_k_lambdas <- function(dt.f, n.obs) {
   un.pe <- print_further_forecasts(dt.f, 'unfocused', 'perfect')
   un.sr <- print_further_forecasts(dt.f, 'unfocused', 'sign-reversed')
 
-  png(paste0("C:/Users/valer/Documents/UNI/Masterarbeit/evalues/ma/pictures/print_further_sim_rej_rate_nobs-", n.obs, "_05-12.png"), height = 950, width = 900)
+  png(paste0("C:/Users/valer/Documents/UNI/MA/evalues/ma/pictures/print_further_sim_rej_rate_it-", n.it, "_", format(Sys.time(), format = "%d-%m"), ".png"), height = 950, width = 900)
   g <- ggpubr::ggarrange(pe.cl, pe.sr, pe.un,
                     cl.pe, cl.sr, cl.un,
                     sr.pe, sr.cl, sr.un,
@@ -53,10 +72,6 @@ print_for_each_k_lambdas <- function(dt.f, n.obs) {
   print(g)
   dev.off()
 }
-
-f.dt.u.f.300 <- eValuesCrps::getFile("/target/run-300-1000-2022-12-02T19-15-08.rds")
-f.dt.u.f.100 <- eValuesCrps::getFile("/target/run-100-1000-2022-12-02T16-50-30.rds")
-f.dt.u.f.50 <- eValuesCrps::getFile("/target/run-50-1000-2022-12-02T16-36-44.rds")
 
 dt.u.f.300 <- f.dt.u.f.300$evaluated %>%
   mutate(it = 300) %>%
@@ -67,23 +82,48 @@ dt.u.f.100 <- f.dt.u.f.100$evaluated %>%
 dt.u.f.50 <- f.dt.u.f.50$evaluated %>%
   mutate(it = 50) %>%
   rename_at(vars(contains("value")), list(~paste0(., ".50")))
+dt.u.f.25 <- f.dt.u.f.25$evaluated %>%
+  mutate(it = 25) %>%
+  rename_at(vars(contains("value")), list(~paste0(., ".25")))
+dt.u.f.10 <- f.dt.u.f.10$evaluated %>%
+  mutate(it = 10) %>%
+  rename_at(vars(contains("value")), list(~paste0(., ".10")))
 dt.f <- merge(dt.u.f.300, dt.u.f.100, by = c('names.F' = 'names.F', 'names.G' = 'names.G'))
 dt.f <- merge(dt.f, dt.u.f.50, by = c('names.F' = 'names.F', 'names.G' = 'names.G'))
+dt.f <- merge(dt.f, dt.u.f.25, by = c('names.F' = 'names.F', 'names.G' = 'names.G'))
+dt.f <- merge(dt.f, dt.u.f.10, by = c('names.F' = 'names.F', 'names.G' = 'names.G'))
 dt.f <- dt.f %>%
-  select(names.F, names.G, p.value.H0.rej.50, p.value.H0.rej.100, p.value.H0.rej.300,
-         e.value.lambda.prod.H0.rej.50, e.value.lambda.prod.H0.rej.100, e.value.lambda.prod.H0.rej.300,
-         e.value.grapa.prod.H0.rej.50, e.value.grapa.prod.H0.rej.100, e.value.grapa.prod.H0.rej.300,
-         e.value.alt.conf.prod.H0.rej.50, e.value.alt.conf.prod.H0.rej.100, e.value.alt.conf.prod.H0.rej.300,
-         e.value.alt.cons.prod.H0.rej.50, e.value.alt.cons.prod.H0.rej.100, e.value.alt.cons.prod.H0.rej.300,
-         e.value.alt.more.cons.prod.H0.rej.50, e.value.alt.more.cons.prod.H0.rej.100, e.value.alt.more.cons.prod.H0.rej.300
+  select(names.F, names.G, p.value.H0.rej.10, p.value.H0.rej.25, p.value.H0.rej.50, p.value.H0.rej.100, p.value.H0.rej.300,
+         e.value.lambda.prod.H0.rej.10, e.value.lambda.prod.H0.rej.25, e.value.lambda.prod.H0.rej.50, e.value.lambda.prod.H0.rej.100, e.value.lambda.prod.H0.rej.300,
+         e.value.grapa.prod.H0.rej.10, e.value.grapa.prod.H0.rej.25, e.value.grapa.prod.H0.rej.50, e.value.grapa.prod.H0.rej.100, e.value.grapa.prod.H0.rej.300,
+         e.value.alt.conf.prod.H0.rej.10, e.value.alt.conf.prod.H0.rej.25, e.value.alt.conf.prod.H0.rej.50, e.value.alt.conf.prod.H0.rej.100, e.value.alt.conf.prod.H0.rej.300,
+         e.value.alt.cons.prod.H0.rej.10, e.value.alt.cons.prod.H0.rej.25, e.value.alt.cons.prod.H0.rej.50, e.value.alt.cons.prod.H0.rej.100, e.value.alt.cons.prod.H0.rej.300,
+         e.value.alt.more.cons.prod.H0.rej.10, e.value.alt.more.cons.prod.H0.rej.25, e.value.alt.more.cons.prod.H0.rej.50, e.value.alt.more.cons.prod.H0.rej.100, e.value.alt.more.cons.prod.H0.rej.300
   )
 
-print_for_each_k_lambdas(dt.f, 300)
+print_for_each_k_lambdas(dt.f, n.it)
 
 
 ########################## loosing power
 
+n.it <- 1000
 
+dt.l.p.f.10 <- sim_e_values(n.obs = 10, n.it = n.it, loosing.power.only = TRUE, usual.forecasts = FALSE)
+dt.l.p.f.25 <- sim_e_values(n.obs = 25, n.it = n.it, loosing.power.only = TRUE, usual.forecasts = FALSE)
+dt.l.p.f.50 <- sim_e_values(n.obs = 50, n.it = n.it, loosing.power.only = TRUE, usual.forecasts = FALSE)
+dt.l.p.f.100 <- sim_e_values(n.obs = 100, n.it = n.it, loosing.power.only = TRUE, usual.forecasts = FALSE)
+dt.l.p.f.300 <- sim_e_values(n.obs = 300, n.it = n.it, loosing.power.only = TRUE, usual.forecasts = FALSE)
+# dt.l.p.f.10 <- getFile("/target/run-10-1000-2022-12-22T19-08-39.rds")
+# dt.l.p.f.25 <- getFile("/target/run-25-1000-2022-12-22T19-12-02.rds")
+# dt.l.p.f.50 <- getFile("/target/run-50-1000-2022-12-22T15-52-54.rds")
+# dt.l.p.f.100 <- getFile("/target/run-100-1000-2022-12-22T15-55-24.rds")
+# dt.l.p.f.300 <- getFile("/target/run-300-1000-2022-12-22T16-01-45.rds")
+
+f.dt.l.p.o.300 <- dt.l.p.f.300
+f.dt.l.p.o.100 <- dt.l.p.f.100
+f.dt.l.p.o.50 <- dt.l.p.f.50
+f.dt.l.p.o.25 <- dt.l.p.f.25
+f.dt.l.p.o.10 <- dt.l.p.f.10
 
 print_rej_presentation <- function(dt, n.obs) {
   to.print <- dt$evaluated %>%
@@ -129,11 +169,13 @@ print_rej_presentation <- function(dt, n.obs) {
   return(list("m" = m, "s" = s))
 }
 
-p.50 <- print_rej_presentation(f.dt.u.f.50, 50)
-p.100 <- print_rej_presentation(f.dt.u.f.100, 100)
-p.300 <- print_rej_presentation(f.dt.u.f.300, 300)
+p.10 <- print_rej_presentation(f.dt.l.p.o.10, 10)
+p.25 <- print_rej_presentation(f.dt.l.p.o.25, 25)
+p.50 <- print_rej_presentation(f.dt.l.p.o.50, 50)
+p.100 <- print_rej_presentation(f.dt.l.p.o.100, 100)
+p.300 <- print_rej_presentation(f.dt.l.p.o.300, 300)
 
-png("C:/Users/valer/Documents/UNI/Masterarbeit/evalues/ma/pictures/rej-50-100-300-it-1000_05-12.png", height = 550, width = 900)
-ggpubr::ggarrange(p.50$m, p.100$m, p.300$m, p.50$s, p.100$s, p.300$s,
-                  ncol = 3, nrow = 2, common.legend = TRUE, legend = "bottom")
+png(paste0("C:/Users/valer/Documents/UNI/MA/evalues/ma/pictures/rej-bias-it-", n.it, "_", format(Sys.time(), format = "%d-%m"), ".png"), height = 1150, width = 600)
+ggpubr::ggarrange(p.10$m, p.10$s, p.25$m, p.25$s, p.50$m, p.50$s, p.100$m, p.100$s, p.300$m, p.300$s,
+                  ncol = 2, nrow = 5, common.legend = TRUE, legend = "bottom")
 dev.off()

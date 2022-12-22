@@ -5,15 +5,15 @@ dt.l.p.f <- eValuesCrps::sim_e_values(n.obs = 50, n.it = 50, loosing.power.only 
 # dt.l.p.f <- getFile("/target/run-50-50-2022-10-15T12-26-21.rds")
 
 dt.check.inf <- f.dt.u.f.300$uncompacted %>%
-  filter(grepl("unfocused", names.F) | names.G == 'unfocused') %>%
-  select(names.F, names.G, crps.F, crps.G, inf.crps) %>%
+  filter(grepl("climatological", names.F) | names.G == 'climatological') %>%
+  select(names.F, names.G, crps.F.fun, crps.G.fun, inf.crps) %>%
   tidyr::unnest(contains("crps.F")) %>%
   filter(names(crps.F.fun) == "fun") %>%
   tidyr::unnest(contains("crps.G")) %>%
   filter(names(crps.G.fun) == "fun") %>%
   tidyr::unnest(inf.crps) %>%
   mutate(inf.crps = as.numeric(format(inf.crps, nsmall = 4))) %>%
-  arrange(names.F) %>%
+  arrange(names.F, names.G) %>%
   distinct()
 
 print_inf <- function(line, from = -10, to = 5) {
@@ -35,16 +35,26 @@ print_inf(sample(1:dim(dt.check.inf)[1],1))
 
 
 ##########################
-devtools::load_all()
 
-mu <- rnorm(50)
-y <- rnorm(50, mu)
+n.obs <- 50
+mu <- rnorm(n.obs)
+tau <- sample(c(-1, 1), n.obs, replace = TRUE)
+y <- rnorm(n.obs, mu)
 crps.F.para <- list("mu" = mu, "sd" = 1, "main" = TRUE)
-crps.G.para <- list("mu" = mu, "sd" = 1.02)
-evalue <- e_value(y, crps.F.para, crps.G.para)
+crps.G.para <- list("mu" = 0, "sd" = 2)
+crps.F.para <- list("mu" = cbind(mu, mu + tau), "sd" = matrix(nrow = n.obs, ncol = 2, 1), "w" = matrix(nrow = n.obs, ncol = 2, 1 / 2))
 
 crps.F.para <- base::append(crps.F.para, rlang::exec(create_crps_fun, length(y), !!!crps.F.para))
 crps.G.para <- base::append(crps.G.para, rlang::exec(create_crps_fun, length(y), !!!crps.G.para))
+
+evalue <- e_value(y, crps.F.para, crps.G.para)
+
+inf.crps <- get_inf_crps(crps.F.para, crps.G.para, n.obs)
+inf.crps <- (abs(min(sapply(seq_along(n.obs), function(i) {
+  optim_inf_value(function(x) {print(c(x,i));
+    crps.F.para$inf.fun(x, i) - crps.G.para$inf.fun(x, i)
+  }, min.value = -10, max.value = 10)
+}))))
 
 which <- 10
 inf.2 <- abs(optim_inf_value(\(x) { crps.F.para$inf.fun(x, which) - crps.G.para$inf.fun(x, which) },
@@ -69,3 +79,11 @@ abline(h = -inf.2, col = "blue")
 
 plot(x, sort(crps.G.para$fun(x)), col = "red", type = "l")
 abline(x, sort(crps.G.para$fun(x)), col = "green")
+
+
+###################
+inf <- abs(min(sapply((1 : n.obs), function(i) {
+  optim_inf_value(function(x) { print(c(x, i));
+    crps.F.para$inf.fun(x, i) - crps.G.para$inf.fun(x, i)
+  }, min.value = -10, max.value = 10)
+})))

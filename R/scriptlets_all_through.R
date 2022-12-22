@@ -4,11 +4,18 @@ library("dplyr")
 library("scoringRules")
 library("DT")
 library("doParallel")
+library("doSNOW")
+library("progress")
+library("data.table")
 
 n.obs <- 300
 n.it <- 1000
 n.it <- 50
 
+dt.l.p.f.10 <- sim_e_values(n.obs = 10, n.it = n.it, loosing.power.only = TRUE, usual.forecasts = FALSE)
+dt.u.f.10 <- sim_e_values(n.obs = 10, n.it = n.it, loosing.power.only = FALSE, usual.forecasts = TRUE)
+dt.l.p.f.25 <- sim_e_values(n.obs = 25, n.it = n.it, loosing.power.only = TRUE, usual.forecasts = FALSE)
+dt.u.f.25 <- sim_e_values(n.obs = 25, n.it = n.it, loosing.power.only = FALSE, usual.forecasts = TRUE)
 dt.l.p.f.50 <- sim_e_values(n.obs = 50, n.it = n.it, loosing.power.only = TRUE, usual.forecasts = FALSE)
 dt.u.f.50 <- sim_e_values(n.obs = 50, n.it = n.it, loosing.power.only = FALSE, usual.forecasts = TRUE)
 dt.l.p.f.100 <- sim_e_values(n.obs = 100, n.it = n.it, loosing.power.only = TRUE, usual.forecasts = FALSE)
@@ -19,6 +26,14 @@ dt.u.f.300 <- sim_e_values(n.obs = 300, n.it = n.it, loosing.power.only = FALSE,
 f.dt.l.p.o.300 <- getFile("/target/run-300-1000-2022-10-21T13-22-52.rds")
 f.dt.l.p.o.100 <- getFile("/target/run-100-1000-2022-10-21T15-52-49.rds")
 f.dt.l.p.o.50 <- getFile("/target/run-50-1000-2022-10-21T17-38-15.rds")
+# f.dt.l.p.o.300 <- dt.l.p.f.300
+# f.dt.l.p.o.100 <- dt.l.p.f.100
+# f.dt.l.p.o.50 <- dt.l.p.f.50
+f.dt.u.f.300 <- dt.u.f.300
+f.dt.u.f.100 <- dt.u.f.100
+f.dt.u.f.50 <- dt.u.f.50
+f.dt.u.f.25 <- dt.u.f.25
+f.dt.u.f.10 <- dt.u.f.10
 
 print_rej_presentation <- function(dt, n.obs) {
   to.print <- dt$evaluated %>%

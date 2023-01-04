@@ -1,9 +1,4 @@
-#Load eValuesCrps
-devtools::install_github("valaevali/eValuesCrps")
-library("eValuesCrps")
-library("dplyr")
-
-print_further_forecasts <- function(dt.f, f, g) {
+print_further_forecasts_crps_diff <- function(dt.f, f, g) {
   to.print <- dt.f %>%
     filter(names.F == f & names.G == g) %>%
     select(-c(names.F, names.G)) %>% group_by(it) %>%
@@ -21,23 +16,23 @@ print_further_forecasts <- function(dt.f, f, g) {
 }
 
 print_for_each_k_dif <- function(dt.f, n.obs) {
-  cl.pe <- print_further_forecasts(dt.f, 'climatological', 'perfect')
-  cl.sr <- print_further_forecasts(dt.f, 'climatological', 'sign-reversed')
-  cl.un <- print_further_forecasts(dt.f, 'climatological', 'unfocused')
+  cl.pe <- print_further_forecasts_crps_diff(dt.f, 'climatological', 'perfect')
+  cl.sr <- print_further_forecasts_crps_diff(dt.f, 'climatological', 'sign-reversed')
+  cl.un <- print_further_forecasts_crps_diff(dt.f, 'climatological', 'unfocused')
 
-  pe.cl <- print_further_forecasts(dt.f, 'perfect', 'climatological')
-  pe.sr <- print_further_forecasts(dt.f, 'perfect', 'sign-reversed')
-  pe.un <- print_further_forecasts(dt.f, 'perfect', 'unfocused')
+  pe.cl <- print_further_forecasts_crps_diff(dt.f, 'perfect', 'climatological')
+  pe.sr <- print_further_forecasts_crps_diff(dt.f, 'perfect', 'sign-reversed')
+  pe.un <- print_further_forecasts_crps_diff(dt.f, 'perfect', 'unfocused')
 
-  sr.cl <- print_further_forecasts(dt.f, 'sign-reversed', 'climatological')
-  sr.pe <- print_further_forecasts(dt.f, 'sign-reversed', 'perfect')
-  sr.un <- print_further_forecasts(dt.f, 'sign-reversed', 'unfocused')
+  sr.cl <- print_further_forecasts_crps_diff(dt.f, 'sign-reversed', 'climatological')
+  sr.pe <- print_further_forecasts_crps_diff(dt.f, 'sign-reversed', 'perfect')
+  sr.un <- print_further_forecasts_crps_diff(dt.f, 'sign-reversed', 'unfocused')
 
-  un.cl <- print_further_forecasts(dt.f, 'unfocused', 'climatological')
-  un.pe <- print_further_forecasts(dt.f, 'unfocused', 'perfect')
-  un.sr <- print_further_forecasts(dt.f, 'unfocused', 'sign-reversed')
+  un.cl <- print_further_forecasts_crps_diff(dt.f, 'unfocused', 'climatological')
+  un.pe <- print_further_forecasts_crps_diff(dt.f, 'unfocused', 'perfect')
+  un.sr <- print_further_forecasts_crps_diff(dt.f, 'unfocused', 'sign-reversed')
 
-  png(paste0("C:/Users/valer/Documents/UNI/Masterarbeit/evalues/ma/pictures/print_further_sim_diff_crps_nobs-", n.obs, "_05-12.png"), height = 950, width = 900)
+  png(paste0("C:/Users/valer/Documents/UNI/Masterarbeit/evalues/ma/pictures/print_further_sim_diff_crps_nobs-", n.obs, "_", format(Sys.time(), format = "%m-%d"), ".png"), height = 950, width = 900)
   g <- ggpubr::ggarrange(pe.cl, pe.sr, pe.un,
                     cl.pe, cl.sr, cl.un,
                     sr.pe, sr.cl, sr.un,
@@ -47,32 +42,44 @@ print_for_each_k_dif <- function(dt.f, n.obs) {
   dev.off()
 }
 
-f.dt.u.f.300 <- eValuesCrps::getFile("/target/run-300-1000-2022-12-02T19-15-08.rds")
-f.dt.u.f.100 <- eValuesCrps::getFile("/target/run-100-1000-2022-12-02T16-50-30.rds")
-f.dt.u.f.50 <- eValuesCrps::getFile("/target/run-50-1000-2022-12-02T16-36-44.rds")
-
-dt.u.f.300 <- f.dt.u.f.300$uncompacted %>%
+dt.crps.diff.u.f.300 <- dt.u.f.300$uncompacted %>%
   filter(it <= 50) %>%
   select(names.F, names.G, crps.F, crps.G, it) %>%
   tidyr::unnest(c(crps.F,crps.G)) %>%
   mutate(diff = crps.F - crps.G) %>%
   arrange(it) %>%
   select(-c(crps.F, crps.G))
-dt.u.f.100 <- f.dt.u.f.100$uncompacted %>%
+dt.crps.diff.u.f.100 <- dt.u.f.100$uncompacted %>%
   filter(it <= 50) %>%
   select(names.F, names.G, crps.F, crps.G, it) %>%
   tidyr::unnest(c(crps.F,crps.G)) %>%
   mutate(diff = crps.F - crps.G) %>%
   arrange(it) %>%
   select(-c(crps.F, crps.G))
-dt.u.f.50 <- f.dt.u.f.50$uncompacted %>%
+dt.crps.diff.u.f.50 <- dt.u.f.50$uncompacted %>%
   filter(it <= 50) %>%
   select(names.F, names.G, crps.F, crps.G, it) %>%
   tidyr::unnest(c(crps.F,crps.G)) %>%
   mutate(diff = crps.F - crps.G) %>%
   select(-c(crps.F, crps.G)) %>%
   arrange(it)
+dt.crps.diff.u.f.25 <- dt.u.f.25$uncompacted %>%
+  filter(it <= 25) %>%
+  select(names.F, names.G, crps.F, crps.G, it) %>%
+  tidyr::unnest(c(crps.F,crps.G)) %>%
+  mutate(diff = crps.F - crps.G) %>%
+  select(-c(crps.F, crps.G)) %>%
+  arrange(it)
+dt.crps.diff.u.f.10 <- dt.u.f.10$uncompacted %>%
+  filter(it <= 10) %>%
+  select(names.F, names.G, crps.F, crps.G, it) %>%
+  tidyr::unnest(c(crps.F,crps.G)) %>%
+  mutate(diff = crps.F - crps.G) %>%
+  select(-c(crps.F, crps.G)) %>%
+  arrange(it)
 
-print_for_each_k_dif(dt.u.f.50, 50)
-print_for_each_k_dif(dt.u.f.100, 100)
-print_for_each_k_dif(dt.u.f.300, 300)
+print_for_each_k_dif(dt.crps.diff.u.f.10, 10)
+print_for_each_k_dif(dt.crps.diff.u.f.25, 25)
+print_for_each_k_dif(dt.crps.diff.u.f.50, 50)
+print_for_each_k_dif(dt.crps.diff.u.f.100, 100)
+print_for_each_k_dif(dt.crps.diff.u.f.300, 300)

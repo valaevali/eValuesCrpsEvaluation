@@ -10,7 +10,7 @@
 #' @param loosing.power.forecasts = loosing.power.only, set to TRUE if you want to include the predefined forecasts with a bias in the mean or variance.
 #' @param usual.forecasts = TRUE, set to FALSE if you want to exclude the predefined usual forecasts.
 #' @param file.folder = getwd(), where to save the output to.
-
+#'
 #' @export
 sim_e_values <- function(n.it = 200, n.obs = 100, loosing.power.only = FALSE,
                          method = list("GRAPA", "lambda", "alternative"), lambda = 0.5, p.value.method = "t",
@@ -73,7 +73,7 @@ sim_e_values <- function(n.it = 200, n.obs = 100, loosing.power.only = FALSE,
 
   saveRDS(result.fin, paste0(file.folder, "/target/run-", n.obs, "-", n.it, "-", timestamp, ".rds"))
   if (loosing.power.only) {
-    pdf(paste0(getwd(), "/target/plot-", n.obs, "-", n.it, "-", timestamp, ".pdf"))
+    pdf(paste0(file.folder, "/target/plot-", n.obs, "-", n.it, "-", timestamp, ".pdf"))
     print_rej_rate_perfect_loosing_power(result.fin)
     dev.off()
   }

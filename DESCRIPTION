@@ -8,7 +8,8 @@ Maintainer: Valerie Haftka <valerie.haftka@hotmail.ch>
 Description: This package does de evaluations of the package eValuesCrps
 Depends: R (>= 4.1.3)
 Imports:
-        eValuesCrps
+        eValuesCrps,
+        isodistrreg
 Encoding: UTF-8
 License: GPL (>= 3)
 RoxygenNote: 7.2.2

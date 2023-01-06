@@ -9,7 +9,14 @@ Description: This package does de evaluations of the package eValuesCrps
 Depends: R (>= 4.1.3)
 Imports:
         eValuesCrps,
-        isodistrreg
+        logger,
+        dplyr,
+        scoringRules,
+        DT,
+        doParallel,
+        doSNOW,
+        progress,
+        data.table
 Encoding: UTF-8
 License: GPL (>= 3)
 RoxygenNote: 7.2.2

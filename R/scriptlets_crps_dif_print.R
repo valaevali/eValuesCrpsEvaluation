@@ -32,7 +32,7 @@ print_for_each_k_dif <- function(dt.f, n.obs) {
   un.pe <- print_further_forecasts_crps_diff(dt.f, 'unfocused', 'perfect')
   un.sr <- print_further_forecasts_crps_diff(dt.f, 'unfocused', 'sign-reversed')
 
-  png(paste0("C:/Users/valer/Documents/UNI/Masterarbeit/evalues/ma/pictures/print_further_sim_diff_crps_nobs-", n.obs, "_", format(Sys.time(), format = "%m-%d"), ".png"), height = 950, width = 900)
+  png(paste0("C:/Users/valer/Documents/UNI/MA/evalues/ma/pictures/print_further_sim_diff_crps_nobs-", n.obs, "_", format(Sys.time(), format = "%m-%d"), ".png"), height = 950, width = 900)
   g <- ggpubr::ggarrange(pe.cl, pe.sr, pe.un,
                     cl.pe, cl.sr, cl.un,
                     sr.pe, sr.cl, sr.un,

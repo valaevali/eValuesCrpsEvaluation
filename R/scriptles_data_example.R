@@ -124,17 +124,11 @@ print_for_each_icu_boxplot <- function(dt.f.input, icu.input) {
   dev.off()
 }
 
-print_for_each_icu_boxplot(dt.data.ex, 'ICU10')
-print_for_each_icu_boxplot(dt.data.ex, 'ICU44')
-print_for_each_icu_boxplot(dt.data.ex, 'ICU65')
-print_for_each_icu_boxplot(dt.data.ex, 'ICU76')
-print_for_each_icu_boxplot(dt.data.ex, 'ICU77')
-
-dt.data.ex.10 <- getFile("/target/run-data-example-10-2023-01-06T17-35-50.rds")
-dt.data.ex.25 <- getFile("/target/run-data-example-25-2023-01-06T17-35-59.rds")
-dt.data.ex.50 <- getFile("/target/run-data-example-50-2023-01-06T17-36-18.rds")
-dt.data.ex.100 <- getFile("/target/run-data-example-100-2023-01-06T17-37-14.rds")
-dt.data.ex.300 <- getFile("/target/run-data-example-300-2023-01-06T17-44-03.rds")
+dt.data.ex.10 <- getFile("/target/run-data-example-10-2023-01-09T12-42-08.rds")
+dt.data.ex.25 <- getFile("/target/run-data-example-25-2023-01-09T12-42-20.rds")
+dt.data.ex.50 <- getFile("/target/run-data-example-50-2023-01-09T12-42-42.rds")
+dt.data.ex.100 <- getFile("/target/run-data-example-100-2023-01-09T12-43-38.rds")
+dt.data.ex.300 <- getFile("/target/run-data-example-300-2023-01-09T12-48-49.rds")
 
 dt.data.ex.mut.10 <- dt.data.ex.10$evaluated %>%
   mutate(it = 10) %>%
@@ -177,7 +171,13 @@ dt.run.inf.check <- dt.data.ex.10$uncompacted %>% filter(names.F == 'idr' &
                                                            names.G == 'rq' &
                                                            icu == 'ICU10')
 crps.F.para <- dt.run.inf.check$crps.F.fun[[1]]
+crps.F.para$inf.crps.fun <- \(x, j) { scoringRules::crps_sample(y = x, dat = crps.F.para$points.cdf[j][[1]]$points, w = crps.F.para$points.cdf[j][[1]]$cdf)}
+crps.F.para$inf.crps.fun <- \(x, j) { crps_rw(crps.F.para$points.cdf[[j]]$points, crps.F.para$points.cdf[[j]]$cdf, x) }
+
+
 crps.G.para <- dt.run.inf.check$crps.G.fun[[1]]
+crps.F.para$inf.crps.fun <- \(x, j) { crps_rw(crps.F.para$points.cdf[[j]]$points, crps.F.para$points.cdf[[j]]$cdf, x) }
+
 inf <- get_inf_crps(crps.F.para, crps.G.para, 10)
 
 print_inf <- function(line, from = -10, to = 5) {
@@ -193,7 +193,3 @@ print_inf(3, -50, 50)
 mins <- sapply(1:n.obs, \(i) { optim_inf_value(\(x) { crps.F.para$inf.fun(x, i) - crps.G.para$inf.fun(x, i) },
                                                min.value = -50, max.value = 50) })
 abline(h = mins)
-
-
-
-

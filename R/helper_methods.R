@@ -3,6 +3,61 @@
 # Created on: 26.01.2022
 
 
+#' @export
+check_input_simulation <- function(n.it, n.obs, loosing.power.only, method, lambda, p.value.method, forecasts.input, loosing.power.forecasts, usual.forecasts, file.folder) {
+  if (is.na(n.it) || !is.numeric(n.it)) {
+    warning("Number of iterations should be a not-null numeric. Setting to default 200.")
+    n.it <- 200
+  }
+  if (is.na(n.obs) || !is.numeric(n.obs)) {
+    warning("Number of observations should be a not-null numeric. Setting to default 200.")
+    n.obs <- 200
+  }
+  if (is.na(loosing.power.only) || !is.logical(loosing.power.only)) {
+    warning("Parameter 'loosing.power.only' should be a not-null logical. Setting to default FALSE.")
+    loosing.power.only <- FALSE
+  }
+  if (!("GRAPA" %in% method) &&
+    !("lambda" %in% method) &&
+    !("alternative" %in% method) &&
+    !("alternative-mean" %in% method)) {
+    warning("Parameter 'method' did not match any defined methods, setting to default 'lambda' for a fixed value")
+    method <- list("lambda")
+  }
+  if (is.na(lambda) && ("lambda" %in% method)) {
+    warning("Method with fixed lambda is choosen, but no lambda is provided. Setting to default lambda = 0.5")
+    lambda <- 0.5
+  }
+  if (is.na(p.value.method)) {
+    warning("Parameter 'p.value.method' is na, hence no p.value will be calculated")
+  }
+  if (!is.na(p.value.method) &&
+    !("t" %in% p.value.method) &&
+    !("dm" %in% p.value.method)) {
+    warning("Parameter 'p.value.method' has to be one of ('t','dm'). Setting to default 't'")
+    p.value.method <- "t"
+  }
+  if (!is.na(forecasts.input) && !is.list(forecasts.input)) {
+    warning("Parameter 'forecasts.input' should be a list of lists. Ignoring input.")
+    forecasts.input <- NA
+  }
+  if (is.na(loosing.power.forecasts) || !is.logical(loosing.power.forecasts)) {
+    warning("Parameter 'loosing.power.forecasts' should be a not-null logical. Setting to default FALSE.")
+    loosing.power.forecasts <- FALSE
+  }
+  if (is.na(usual.forecasts) || !is.logical(usual.forecasts)) {
+    warning("Parameter 'usual.forecasts' should be a not-null logical. Setting to default TRUE.")
+    usual.forecasts <- TRUE
+  }
+  if (is.na(file.folder)) {
+    warning("Parameter 'file.folde' should not be null. Setting to default: getwd().")
+    file.folder <- getwd()
+  }
+
+  return(list("n.it" = n.it, "n.obs" = n.obs, "loosing.power.only" = loosing.power.only, "method" = method, "lambda" = lambda, "p.value.method" = p.value.method, "forecasts.input" = forecasts.input, "loosing.power.forecasts" = loosing.power.forecasts, "usual.forecasts" = usual.forecasts, "file.folder" = file.folder))
+}
+
+
 #' This method returns the R object save it the file with getwd() + filename.
 #' @param filename is the name of the file.
 #' @returns the R object in the file.

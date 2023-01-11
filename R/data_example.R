@@ -7,62 +7,44 @@
 #' data[1,]$rq
 #' [[1]]
 #' points   cdf
-#' @param method = list("GRAPA", "lambda", "alternative", "alternative-mean"), is a list containing all the method names for calculating the different lambdas.
+#' @param method = list("GRAPA", "lambda", "alt-conf", "alt-cons", "alt-more-cons"), is a list containing all the method names for calculating the different lambdas.
 #' @param lambda = 0.5, lambda entry for a fixed value.
 #' @param p.value.method = "t", can be "t" for t-test and "dm" for dm.test of the package forecast.
 #' @param file.folder = getwd(), where to save the output to.
+#' @param f name of first forecaster
+#' @param g name of second forecaster
 #'
 #' @export
-calculate_e_values_data_example <- function(input.data, method = list("GRAPA", "lambda", "alternative"),
-                                            lambda = 0.5, p.value.method = "t", file.folder = getwd()) {
-  n.it <- length(input.data)
+calculate_e_values_data_example_for_each <- function(input.data, crps.F.para, crps.G.para, method = list("alt-cons"),
+                                                     lambda = 0.5, p.value.method = NA, file.folder = getwd(), f, g) {
+  n.it <- nrow(input.data)
+  input.data <- input.data %>% arrange(date)
+
   start.time <- Sys.time()
-  cl <- parallel::makeCluster(parallel::detectCores() - 2, type = "PSOCK")
-  doSNOW::registerDoSNOW(cl = cl)
-  on.exit(parallel::stopCluster(cl = cl))
-  pb <- progress::progress_bar$new(total = n.it + 1)
 
-  # allowing progress bar to be used in dopar
-  opts <- list(progress = \() { pb$tick(1) })
-
-  pb$tick(1)
   print(paste("Starting to caclulate the e-values at:", start.time))
-  result <- foreach::foreach(i = seq(1, n.it), .combine = \(x, y) { data.table::rbindlist(list(x, y)) }, .options.snow = opts, .packages = c("dplyr", "eValuesCrps")) %dopar% {
+  pb <- progress::progress_bar$new(total = n.it, show_after = 0, force = T, clear = F)
+  # allowing progress bar to be used in dopar
+  pb$tick(0)
 
-    data.run <- input.data[i][[1]]
-    obs <- data.run$los
-
-    forecasts <- list("idr" = list("points.cdf" = data.run$idr),
-                      "rq" = list("points.cdf" = data.run$rq),
-                      "cox" = list("points.cdf" = data.run$cox))
-
-    temp <- outer(forecasts, forecasts, Vectorize(\(f, g) {
-      if (!identical(f, g)) {
-        return(e_value(y = obs, crps.F.para = f, crps.G.para = g, it = i, method = method, lambda = lambda, p.value.method = p.value.method))
-      }
-    }))
-    temp.tibble <- tibble::as_tibble(temp)
-    temp.tibble <- temp.tibble %>%
-      dplyr::mutate(names.F = rownames(temp),
-                    icu = names(input.data[i])) %>%
-      tidyr::pivot_longer(cols = colnames(temp.tibble), names_to = "names.G") %>%
-      tidyr::unnest_wider(value) %>%
-      na.omit(p.value)
-    temp.tibble
+  sequential.run <- rep(NA, n.it)
+  first.run <- e_value(y = input.data[1,]$los, crps.F.para = list("points.cdf" = crps.F.para[1]), crps.G.para = list("points.cdf" = crps.G.para[1]), method = method, lambda = lambda, p.value.method = p.value.method)
+  sequential.run[1] <- list(first.run)
+  pb$tick(1)
+  for (t in 2:n.it) {
+    first.run <- next_k_e_values(first.run, new.y = input.data[t,]$los, new.crps.F.para = crps.F.para[t], new.crps.G.para = crps.G.para[t])
+    sequential.run[t] <- list(first.run)
+    pb$tick(1)
   }
+  temp <- tibble("names.F" = f, "names.G" = g, "date" = input.data[, 3]$date, sequential.run)
+  result <- temp %>%
+    tidyr::unnest_wider(sequential.run)%>%
+    select(names.F, names.G, date, e.value.alt.cons.prod)
 
   timestamp <- format(Sys.time(), format = "%Y-%m-%dT%H-%M-%S")
-  result.eval <- result %>%
-    group_by(names.F, names.G, icu) %>%
-    mutate(across(contains(c("p.value", "prod")), ~100 * sum(.x <= 0.05), .names = "{.col}.H0.rej")) %>%
-    select(contains(c("names", "icu", "H0"))) %>%
-    distinct() %>%
-    arrange(icu, names.F, names.G)
-
   print(Sys.time() - start.time)
-  result.fin <- list("uncompacted" = result, "evaluated" = result.eval)
 
-  saveRDS(result.fin, paste0(file.folder, "/target/run-data-example-", nrow(input.data[1][[1]]),"-", timestamp, ".rds"))
+  fst::write.fst(result, path = paste0(file.folder, "/target/run-data-example-", (input.data[1,]$icu), "-", f, "vs", g, "-", timestamp, ".fst"))
 
-  return(result.fin)
+  return(result)
 }

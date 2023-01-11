@@ -34,162 +34,207 @@ data.example.dt <- load(file = paste0(getwd(), "/data/dim_data_master_thesis.rda
 
 ##
 
-data.to.calc <- data %>% select(-date)
+data.date <- data %>% arrange(date)
+input.list.small <- list("ICU10" = data.date %>% filter(icu == "ICU10"),
+                         "ICU44" = data.date %>% filter(icu == "ICU44"),
+                         "ICU65" = data.date %>% filter(icu == "ICU65"),
+                         "ICU76" = data.date %>% filter(icu == "ICU76"),
+                         "ICU77" = data.date %>% filter(icu == "ICU77")
+)
 
-get_randomized_input_of_dataset <- function(data, n.obs.max) {
-  indx <- sample(nrow(data), n.obs.max)
-  data[indx,]
-}
-
-calculate_e_values_randomized_dataset <- function(data.to.calc, n.obs.max) {
-  input.list.small <- list("ICU10" = get_randomized_input_of_dataset(data.to.calc %>% filter(icu == "ICU10"), n.obs.max),
-                           "ICU44" = get_randomized_input_of_dataset(data.to.calc %>% filter(icu == "ICU44"), n.obs.max),
-                           "ICU65" = get_randomized_input_of_dataset(data.to.calc %>% filter(icu == "ICU65"), n.obs.max),
-                           "ICU76" = get_randomized_input_of_dataset(data.to.calc %>% filter(icu == "ICU76"), n.obs.max),
-                           "ICU77" = get_randomized_input_of_dataset(data.to.calc %>% filter(icu == "ICU77"), n.obs.max)
-  )
-  result <- calculate_e_values_data_example(input.list.small)
-}
-
-log_threshold(DEBUG)
-calculate_e_values_randomized_dataset(data.to.calc, 10)
+log_threshold(INFO)
+# dt.data.ex.ICU10 <- calculate_e_values_data_example(input.list.small$ICU10)
+# dt.data.ex.ICU44 <- calculate_e_values_data_example(input.list.small$ICU44)
+# dt.data.ex.ICU65 <- calculate_e_values_data_example(input.list.small$ICU65)
+# dt.data.ex.ICU76 <- calculate_e_values_data_example(input.list.small$ICU76)
+# dt.data.ex.ICU77 <- calculate_e_values_data_example(input.list.small$ICU77)
 # n.obs.max = 10: Time difference of 6.523377 secs
-calculate_e_values_randomized_dataset(data.to.calc, 25)
-# n.obs.max = 25: Time difference of 12.11244 secs
-calculate_e_values_randomized_dataset(data.to.calc, 50)
-# n.obs.max = 50: Time difference of 26.14363 secs
-calculate_e_values_randomized_dataset(data.to.calc, 100)
-# n.obs.max = 100: Time difference of 59.26821 secs
-calculate_e_values_randomized_dataset(data.to.calc, 300)
-# n.obs.max = 300: Time difference of 6.801105 mins
 
-######## print boxplot
-create_boxplot_for_data_example <- function(dt.data.boxplot, icu) {
-  p <- ggplot2::ggplot(dt.data.boxplot, ggplot2::aes(x = which, y = as.factor(rejecting), color = which, fill = which)) +
-    ggplot2::geom_boxplot(alpha = 0.5, outlier.shape = NA, lwd = 2) +
-    ggplot2::scale_colour_manual(values = c("blue", "cornflowerblue", "cyan", "darkgreen", "darkolivegreen3", "red"), name = NULL) +
-    ggplot2::scale_fill_manual(values = c("blue", "cornflowerblue", "cyan", "darkgreen", "darkolivegreen3", "red"), name = NULL) +
-    ggplot2::theme(legend.position = "none") +
-    ggplot2::ylim("0", "1") +
+# memory problem accessing
+data.ex.icu10.idr.rq  <- calculate_e_values_data_example_for_each(input.data = input.list.small$ICU10, crps.F.para = input.list.small$ICU10$idr, crps.G.para = input.list.small$ICU10$rq, f= 'idr', g= 'rq')
+data.ex.icu10.idr.cox <- calculate_e_values_data_example_for_each(input.data = input.list.small$ICU10, crps.F.para = input.list.small$ICU10$idr, crps.G.para = input.list.small$ICU10$cox, f= 'idr', g= 'cox')
+data.ex.icu10.rq.Cox  <- calculate_e_values_data_example_for_each(input.data = input.list.small$ICU10, crps.F.para = input.list.small$ICU10$rq, crps.G.para = input.list.small$ICU10$cox, f= 'rq', g= 'cox')
+data.ex.icu10.rq.idr  <- calculate_e_values_data_example_for_each(input.data = input.list.small$ICU10, crps.F.para = input.list.small$ICU10$rq, crps.G.para = input.list.small$ICU10$idr, f= 'rq', g= 'idr')
+data.ex.icu10.cox.rq  <- calculate_e_values_data_example_for_each(input.data = input.list.small$ICU10, crps.F.para = input.list.small$ICU10$cox, crps.G.para = input.list.small$ICU10$rq, f= 'cox', g= 'rq')
+data.ex.icu10.cox.idr <- calculate_e_values_data_example_for_each(input.data = input.list.small$ICU10, crps.F.para = input.list.small$ICU10$cox, crps.G.para = input.list.small$ICU10$idr, f= 'cox', g= 'idr')
+
+data.ex.icu44.idr.rq  <- calculate_e_values_data_example_for_each(input.data = input.list.small$ICU44, crps.F.para = input.list.small$ICU44$idr, crps.G.para = input.list.small$ICU44$rq, f= 'idr', g= 'rq')
+data.ex.icu44.idr.cox <- calculate_e_values_data_example_for_each(input.data = input.list.small$ICU44, crps.F.para = input.list.small$ICU44$idr, crps.G.para = input.list.small$ICU44$cox, f= 'idr', g= 'cox')
+data.ex.icu44.rq.cox  <- calculate_e_values_data_example_for_each(input.data = input.list.small$ICU44, crps.F.para = input.list.small$ICU44$rq, crps.G.para = input.list.small$ICU44$cox, f= 'rq', g= 'cox')
+data.ex.icu44.rq.idr  <- calculate_e_values_data_example_for_each(input.data = input.list.small$ICU44, crps.F.para = input.list.small$ICU44$rq, crps.G.para = input.list.small$ICU44$idr, f= 'rq', g= 'idr')
+data.ex.icu44.cox.rq  <- calculate_e_values_data_example_for_each(input.data = input.list.small$ICU44, crps.F.para = input.list.small$ICU44$cox, crps.G.para = input.list.small$ICU44$rq, f= 'cox', g= 'rq')
+data.ex.icu44.cox.idr <- calculate_e_values_data_example_for_each(input.data = input.list.small$ICU44, crps.F.para = input.list.small$ICU44$cox, crps.G.para = input.list.small$ICU44$idr, f= 'cox', g= 'idr')
+
+data.ex.icu65.idr.rq  <- calculate_e_values_data_example_for_each(input.data = input.list.small$ICU65, crps.F.para = input.list.small$ICU65$idr, crps.G.para = input.list.small$ICU65$rq, f= 'idr', g= 'rq')
+data.ex.icu65.idr.cox <- calculate_e_values_data_example_for_each(input.data = input.list.small$ICU65, crps.F.para = input.list.small$ICU65$idr, crps.G.para = input.list.small$ICU65$cox, f= 'idr', g= 'cox')
+data.ex.icu65.rq.cox  <- calculate_e_values_data_example_for_each(input.data = input.list.small$ICU65, crps.F.para = input.list.small$ICU65$rq,  crps.G.para = input.list.small$ICU65$cox, f= 'rq', g= 'cox')
+data.ex.icu65.rq.idr  <- calculate_e_values_data_example_for_each(input.data = input.list.small$ICU65, crps.F.para = input.list.small$ICU65$rq,  crps.G.para = input.list.small$ICU65$idr, f= 'rq', g= 'idr')
+data.ex.icu65.cox.rq  <- calculate_e_values_data_example_for_each(input.data = input.list.small$ICU65, crps.F.para = input.list.small$ICU65$cox, crps.G.para = input.list.small$ICU65$rq, f= 'cox', g= 'rq')
+data.ex.icu65.cox.idr <- calculate_e_values_data_example_for_each(input.data = input.list.small$ICU65, crps.F.para = input.list.small$ICU65$cox, crps.G.para = input.list.small$ICU65$idr, f= 'cox', g= 'idr')
+
+data.ex.icu76.idr.rq  <- calculate_e_values_data_example_for_each(input.data = input.list.small$ICU76, crps.F.para = input.list.small$ICU76$idr, crps.G.para = input.list.small$ICU76$rq, f= 'idr', g= 'rq')
+data.ex.icu76.idr.cox <- calculate_e_values_data_example_for_each(input.data = input.list.small$ICU76, crps.F.para = input.list.small$ICU76$idr, crps.G.para = input.list.small$ICU76$cox, f= 'idr', g= 'cox')
+data.ex.icu76.rq.cox  <- calculate_e_values_data_example_for_each(input.data = input.list.small$ICU76, crps.F.para = input.list.small$ICU76$rq,  crps.G.para = input.list.small$ICU76$cox, f= 'rq', g= 'cox')
+data.ex.icu76.rq.idr  <- calculate_e_values_data_example_for_each(input.data = input.list.small$ICU76, crps.F.para = input.list.small$ICU76$rq,  crps.G.para = input.list.small$ICU76$idr, f= 'rq', g= 'idr')
+data.ex.icu76.cox.rq  <- calculate_e_values_data_example_for_each(input.data = input.list.small$ICU76, crps.F.para = input.list.small$ICU76$cox, crps.G.para = input.list.small$ICU76$rq, f= 'cox', g= 'rq')
+data.ex.icu76.cox.idr <- calculate_e_values_data_example_for_each(input.data = input.list.small$ICU76, crps.F.para = input.list.small$ICU76$cox, crps.G.para = input.list.small$ICU76$idr, f= 'cox', g= 'idr')
+
+data.ex.icu77.idr.rq  <- calculate_e_values_data_example_for_each(input.data = input.list.small$ICU77, crps.F.para = input.list.small$ICU77$idr, crps.G.para = input.list.small$ICU77$rq, f= 'idr', g= 'rq')
+data.ex.icu77.idr.cox <- calculate_e_values_data_example_for_each(input.data = input.list.small$ICU77, crps.F.para = input.list.small$ICU77$idr, crps.G.para = input.list.small$ICU77$cox, f= 'idr', g= 'cox')
+data.ex.icu77.rq.cox  <- calculate_e_values_data_example_for_each(input.data = input.list.small$ICU77, crps.F.para = input.list.small$ICU77$rq,  crps.G.para = input.list.small$ICU77$cox, f= 'rq', g= 'cox')
+data.ex.icu77.rq.idr  <- calculate_e_values_data_example_for_each(input.data = input.list.small$ICU77, crps.F.para = input.list.small$ICU77$rq,  crps.G.para = input.list.small$ICU77$idr, f= 'rq', g= 'idr')
+data.ex.icu77.cox.rq  <- calculate_e_values_data_example_for_each(input.data = input.list.small$ICU77, crps.F.para = input.list.small$ICU77$cox, crps.G.para = input.list.small$ICU77$rq, f= 'cox', g= 'rq')
+data.ex.icu77.cox.idr <- calculate_e_values_data_example_for_each(input.data = input.list.small$ICU77, crps.F.para = input.list.small$ICU77$cox, crps.G.para = input.list.small$ICU77$idr, f= 'cox', g= 'idr')
+
+
+data.ex.icu10.idr.rq  <- fst::read_fst(paste0(getwd(), "/target/run-data-example-ICU10-idrvsrq-2023-01-11T16-54-30.fst"))
+data.ex.icu10.idr.cox <- fst::read_fst(paste0(getwd(), "/target/run-data-example-ICU10-idrvscox-2023-01-11T16-56-04.fst"))
+data.ex.icu10.rq.Cox  <- fst::read_fst(paste0(getwd(), "/target/run-data-example-ICU10-rqvscox-2023-01-11T16-58-01.fst"))
+data.ex.icu10.rq.idr  <- fst::read_fst(paste0(getwd(), "/target/run-data-example-ICU10-rqvsidr-2023-01-11T17-00-36.fst"))
+data.ex.icu10.cox.rq  <- fst::read_fst(paste0(getwd(), "/target/run-data-example-ICU10-coxvsrq-2023-01-11T17-02-18.fst"))
+data.ex.icu10.cox.idr <- fst::read_fst(paste0(getwd(), "/target/run-data-example-ICU10-coxvsidr-2023-01-11T17-04-55.fst"))
+data.ex.icu44.idr.rq  <- fst::read_fst(paste0(getwd(), "/target/run-data-example-ICU44-idrvsrq-2023-01-11T09-00-53.fst"))
+data.ex.icu44.idr.cox <- fst::read_fst(paste0(getwd(), "/target/run-data-example-ICU44-idrvscox-2023-01-11T09-01-15.fst"))
+data.ex.icu44.rq.cox  <- fst::read_fst(paste0(getwd(), "/target/run-data-example-ICU44-rqvscox-2023-01-11T09-01-50.fst"))
+data.ex.icu44.rq.idr  <- fst::read_fst(paste0(getwd(), "/target/run-data-example-ICU44-rqvsidr-2023-01-11T09-02-32.fst"))
+data.ex.icu44.cox.rq  <- fst::read_fst(paste0(getwd(), "/target/run-data-example-ICU44-coxvsrq-2023-01-11T09-02-54.fst"))
+data.ex.icu44.cox.idr <- fst::read_fst(paste0(getwd(), "/target/run-data-example-ICU44-coxvsidr-2023-01-11T09-03-35.fst"))
+data.ex.icu65.idr.rq  <- fst::read_fst(paste0(getwd(), "/target/run-data-example-ICU65-idrvsrq-2023-01-11T09-04-23.fst"))
+data.ex.icu65.idr.cox <- fst::read_fst(paste0(getwd(), "/target/run-data-example-ICU65-idrvscox-2023-01-11T09-05-15.fst"))
+data.ex.icu65.rq.cox  <- fst::read_fst(paste0(getwd(), "/target/run-data-example-ICU65-rqvscox-2023-01-11T09-06-46.fst"))
+data.ex.icu65.rq.idr  <- fst::read_fst(paste0(getwd(), "/target/run-data-example-ICU65-rqvsidr-2023-01-11T09-08-17.fst"))
+data.ex.icu65.cox.rq  <- fst::read_fst(paste0(getwd(), "/target/run-data-example-ICU65-coxvsrq-2023-01-11T09-09-09.fst"))
+data.ex.icu65.cox.idr <- fst::read_fst(paste0(getwd(), "/target/run-data-example-ICU65-coxvsidr-2023-01-11T09-10-39.fst"))
+data.ex.icu76.idr.rq  <- fst::read_fst(paste0(getwd(), "/target/run-data-example-ICU76-idrvsrq-2023-01-11T09-11-11.fst"))
+data.ex.icu76.idr.cox <- fst::read_fst(paste0(getwd(), "/target/run-data-example-ICU76-idrvscox-2023-01-11T09-11-43.fst"))
+data.ex.icu76.rq.cox  <- fst::read_fst(paste0(getwd(), "/target/run-data-example-ICU76-rqvscox-2023-01-11T09-12-22.fst"))
+data.ex.icu76.rq.idr  <- fst::read_fst(paste0(getwd(), "/target/run-data-example-ICU76-rqvsidr-2023-01-11T09-13-23.fst"))
+data.ex.icu76.cox.rq  <- fst::read_fst(paste0(getwd(), "/target/run-data-example-ICU76-coxvsrq-2023-01-11T09-14-22.fst"))
+data.ex.icu76.cox.idr <- fst::read_fst(paste0(getwd(), "/target/run-data-example-ICU76-coxvsidr-2023-01-11T09-15-19.fst"))
+data.ex.icu77.idr.rq  <- fst::read_fst(paste0(getwd(), "/target/run-data-example-ICU77-idrvsrq-2023-01-11T09-15-39.fst"))
+data.ex.icu77.idr.cox <- fst::read_fst(paste0(getwd(), "/target/run-data-example-ICU77-idrvscox-2023-01-11T09-15-57.fst"))
+data.ex.icu77.rq.cox  <- fst::read_fst(paste0(getwd(), "/target/run-data-example-ICU77-rqvscox-2023-01-11T09-16-34.fst"))
+data.ex.icu77.rq.idr  <- fst::read_fst(paste0(getwd(), "/target/run-data-example-ICU77-rqvsidr-2023-01-11T09-17-14.fst"))
+data.ex.icu77.cox.rq  <- fst::read_fst(paste0(getwd(), "/target/run-data-example-ICU77-coxvsrq-2023-01-11T09-17-34.fst"))
+data.ex.icu77.cox.idr <- fst::read_fst(paste0(getwd(), "/target/run-data-example-ICU77-coxvsidr-2023-01-11T09-18-13.fst"))
+
+###################
+plot_e_value_process <- function (data) {
+  p <- ggplot2::ggplot(data, ggplot2::aes(x = date, y = e.value.alt.cons.prod, group = which)) +
+    ggplot2::geom_line(ggplot2::aes(linetype = which, color = which), linewidth = 1) +
+    ggplot2::scale_colour_brewer(palette = "Dark2") +
+    ggplot2::theme(legend.position = "bottom") +
+    ggplot2::coord_cartesian(ylim=c(0, 10)) +
     ggplot2::theme(plot.title = ggplot2::element_text(size = 20, color = "red"), axis.text = ggplot2::element_text(size = 12),
                    strip.text.x = ggplot2::element_text(size = 12), strip.text.y = ggplot2::element_text(size = 12),
                    axis.text.x = ggplot2::element_text(angle = 70, vjust = 0.9, hjust = 1)) +
-    ggplot2::xlab("") +
-    ggplot2::ylab(latex2exp::TeX("Rejecting $H_0$")) +
-    ggplot2::facet_grid(name ~ n_obs) +
-    ggplot2::ggtitle(icu)
+    ggplot2::ylab("E-value process") +
+    ggplot2::facet_wrap(. ~ icu, ncol = 2, scales = "free_x") +
+    ggplot2::xlab("")
   return(p)
 }
 
-prepare_data_for_boxplot <- function (dt.f.input, f, g) {
-  dt.f.input <- dt.f.input %>%
-    filter(names.F == f & names.G == g) %>%
-    select(-c(names.F, names.G))
-  dt.f.input <- as.data.frame(t(dt.f.input))
-  dt.f.input <- dt.f.input %>%
-    mutate(which = rownames(dt.f.input),
-           n_obs = as.numeric(stringr::str_extract(which, "[0-9]{2,3}")),
-           rejecting = as.numeric(V1) / 100,
-           which = stringr::str_replace(which, "(.prod|).H0.rej.[0-9]{2,3}", ""),
-           name = paste(f, 'vs', g)
-    ) %>%
-    select(which, n_obs, rejecting, name)
-  return(dt.f.input)
-}
+# icu 10
+dt.data.ex.icu10 <- data.ex.icu10.cox.idr %>%
+  add_row(data.ex.icu10.cox.rq) %>%
+  add_row(data.ex.icu10.idr.cox) %>%
+  add_row(data.ex.icu10.idr.rq) %>%
+  add_row(data.ex.icu10.rq.Cox) %>%
+  add_row(data.ex.icu10.rq.idr) %>%
+  mutate(which = paste0(names.F, " vs ", names.G), icu = 'ICU10') %>%
+  select(-c(names.F, names.G)) %>%
+  filter(is.finite(e.value.alt.cons.prod)) %>%
+  arrange(date)
+dt.data.ex.icu10.early <- dt.data.ex.icu10 %>% filter(as.Date(date) < as.Date('2016-09-14')) %>% mutate(icu = paste('ICU10 - first', n(), 'obs'))
 
-print_for_each_icu_boxplot <- function(dt.f.input, icu.input) {
-  dt.f <- dt.f.input %>%
-    filter(icu == icu.input) %>%
-    select(-(icu))
+# icu 44
+dt.data.ex.icu44 <- data.ex.icu44.cox.idr %>%
+  add_row(data.ex.icu44.cox.rq) %>%
+  add_row(data.ex.icu44.idr.cox) %>%
+  add_row(data.ex.icu44.idr.rq) %>%
+  add_row(data.ex.icu44.rq.cox) %>%
+  add_row(data.ex.icu44.rq.idr) %>%
+  mutate(which = paste0(names.F, " vs ", names.G), icu = 'ICU44') %>%
+  select(-c(names.F, names.G)) %>%
+  filter(is.finite(e.value.alt.cons.prod)) %>%
+  arrange(date)
+dt.data.ex.icu44.early <- dt.data.ex.icu44 %>% filter(as.Date(date) < as.Date('2016-10-23')) %>% mutate(icu = paste('ICU44 - first', n(), 'obs'))
 
-  dt.f.idr.rq <- prepare_data_for_boxplot(dt.f, 'idr', 'rq')
-  dt.f.idr.cox <- prepare_data_for_boxplot(dt.f, 'idr', 'cox')
+# icu 65
+dt.data.ex.icu65 <- data.ex.icu65.cox.idr %>%
+  add_row(data.ex.icu65.cox.rq) %>%
+  add_row(data.ex.icu65.idr.cox) %>%
+  add_row(data.ex.icu65.idr.rq) %>%
+  add_row(data.ex.icu65.rq.cox) %>%
+  add_row(data.ex.icu65.rq.idr) %>%
+  mutate(which = paste0(names.F, " vs ", names.G), icu = 'ICU65') %>%
+  select(-c(names.F, names.G)) %>%
+  filter(is.finite(e.value.alt.cons.prod)) %>%
+  arrange(date)
+dt.data.ex.icu65.early <- dt.data.ex.icu65 %>% filter(as.Date(date) < as.Date('2017-03-11')) %>% mutate(icu = paste('ICU65 - first', n(), 'obs'))
 
-  dt.f.rq.idr <- prepare_data_for_boxplot(dt.f, 'rq', 'idr')
-  dt.f.rq.cox <- prepare_data_for_boxplot(dt.f, 'rq', 'cox')
+# icu 76
+dt.data.ex.icu76 <- data.ex.icu76.cox.idr %>%
+  add_row(data.ex.icu76.cox.rq) %>%
+  add_row(data.ex.icu76.idr.cox) %>%
+  add_row(data.ex.icu76.idr.rq) %>%
+  add_row(data.ex.icu76.rq.cox) %>%
+  add_row(data.ex.icu76.rq.idr) %>%
+  mutate(which = paste0(names.F, " vs ", names.G), icu = 'ICU76') %>%
+  select(-c(names.F, names.G)) %>%
+  filter(is.finite(e.value.alt.cons.prod)) %>%
+  arrange(date)
+dt.data.ex.icu76.early <- dt.data.ex.icu76 %>% filter(as.Date(date) < as.Date('2016-10-18')) %>% mutate(icu = paste('ICU76 - first', n(), 'obs'))
 
-  dt.f.cox.idr <- prepare_data_for_boxplot(dt.f, 'cox', 'idr')
-  dt.f.cox.rq <- prepare_data_for_boxplot(dt.f, 'cox', 'rq')
+# icu 77
+dt.data.ex.icu77 <- data.ex.icu77.cox.idr %>%
+  add_row(data.ex.icu77.cox.rq) %>%
+  add_row(data.ex.icu77.idr.cox) %>%
+  add_row(data.ex.icu77.idr.rq) %>%
+  add_row(data.ex.icu77.rq.cox) %>%
+  add_row(data.ex.icu77.rq.idr) %>%
+  mutate(which = paste0(names.F, " vs ", names.G), icu = 'ICU77') %>%
+  select(-c(names.F, names.G)) %>%
+  filter(is.finite(e.value.alt.cons.prod)) %>%
+  arrange(date)
+dt.data.ex.icu77.early <- dt.data.ex.icu77 %>% filter(as.Date(date) < as.Date('2017-12-11'))  %>% mutate(icu = paste('ICU77 - first', n(), 'obs'))
 
-  dt.all <- dt.f.idr.rq %>%
-    add_row(dt.f.idr.cox) %>%
-    add_row(dt.f.rq.idr) %>%
-    add_row(dt.f.rq.cox) %>%
-    add_row(dt.f.cox.idr) %>%
-    add_row(dt.f.cox.rq)
+dt.data.ex <- dt.data.ex.icu10.early %>%
+  add_row(dt.data.ex.icu10) %>%
+  add_row(dt.data.ex.icu44.early) %>%
+  add_row(dt.data.ex.icu44) %>%
+  add_row(dt.data.ex.icu65.early) %>%
+  add_row(dt.data.ex.icu65) %>%
+  add_row(dt.data.ex.icu76.early) %>%
+  add_row(dt.data.ex.icu76) %>%
+  add_row(dt.data.ex.icu77.early) %>%
+  add_row(dt.data.ex.icu77) %>%
+  mutate(across(icu, factor, levels=c(dt.data.ex.icu10.early$icu[1],"ICU10",dt.data.ex.icu44.early$icu[1], "ICU44", dt.data.ex.icu65.early$icu[1], "ICU65", dt.data.ex.icu76.early$icu[1], "ICU76", dt.data.ex.icu77.early$icu[1], "ICU77")))
 
-  png(paste0("C:/Users/valer/Documents/UNI/MA/evalues/ma/pictures/print_data_example_boxplot_rej_rate_icu-", icu.input, "_", format(Sys.time(), format = "%d-%m"), ".png"), height = 950, width = 900)
-  g <- create_boxplot_for_data_example(dt.all, icu.input)
-  print(g)
-  dev.off()
-}
+g <- plot_e_value_process(dt.data.ex)
+png(paste0("C:/Users/valer/Documents/UNI/MA/evalues/ma/pictures/print_data_example_all-icus_", format(Sys.time(), format = "%d-%m"), ".png"), height = 950, width = 600)
+print(g)
+dev.off()
 
-dt.data.ex.10 <- getFile("/target/run-data-example-10-2023-01-09T12-42-08.rds")
-dt.data.ex.25 <- getFile("/target/run-data-example-25-2023-01-09T12-42-20.rds")
-dt.data.ex.50 <- getFile("/target/run-data-example-50-2023-01-09T12-42-42.rds")
-dt.data.ex.100 <- getFile("/target/run-data-example-100-2023-01-09T12-43-38.rds")
-dt.data.ex.300 <- getFile("/target/run-data-example-300-2023-01-09T12-48-49.rds")
+###################################################################
+n <- 100
+sequential.run <- rep(NA, n)
+system.time({
+  data.run <- data.date[1,]
+  first.run <- e_value(y = data.run$los, crps.F.para = list("points.cdf" = data.run$idr), crps.G.para = list("points.cdf" = data.run$rq))
+  sequential.run[1] <- list(first.run)
+  for (i in 2:n) {
+    data.run <- data.date[i,]
+    first.run <- next_k_e_values_for_point_cdfs(first.run, new.y = data.run$los, new.crps.F.para = data.run$idr, new.crps.G.para = data.run$rq)
+    sequential.run[i] <- list(first.run)
+  }
+})
 
-dt.data.ex.mut.10 <- dt.data.ex.10$evaluated %>%
-  mutate(it = 10) %>%
-  rename_at(vars(contains("value")), list(~paste0(., ".10")))
-dt.data.ex.mut.25 <- dt.data.ex.25$evaluated %>%
-  mutate(it = 25) %>%
-  rename_at(vars(contains("value")), list(~paste0(., ".25")))
-dt.data.ex.mut.50 <- dt.data.ex.50$evaluated %>%
-  mutate(it = 50) %>%
-  rename_at(vars(contains("value")), list(~paste0(., ".50")))
-dt.data.ex.mut.100 <- dt.data.ex.100$evaluated %>%
-  mutate(it = 100) %>%
-  rename_at(vars(contains("value")), list(~paste0(., ".100")))
-dt.data.ex.mut.300 <- dt.data.ex.300$evaluated %>%
-  mutate(it = 300) %>%
-  rename_at(vars(contains("value")), list(~paste0(., ".300")))
-dt.data.ex <- merge(dt.data.ex.mut.10, dt.data.ex.mut.25, by = c("names.F" = "names.F", "names.G" = "names.G", "icu" = "icu"))
-dt.data.ex <- merge(dt.data.ex, dt.data.ex.mut.50, by = c("names.F" = "names.F", "names.G" = "names.G", "icu" = "icu"))
-dt.data.ex <- merge(dt.data.ex, dt.data.ex.mut.100, by = c("names.F" = "names.F", "names.G" = "names.G", "icu" = "icu"))
-dt.data.ex <- merge(dt.data.ex, dt.data.ex.mut.300, by = c("names.F" = "names.F", "names.G" = "names.G", "icu" = "icu"))
-dt.data.ex <- dt.data.ex %>%
-  select(names.F, names.G, icu, p.value.H0.rej.10, p.value.H0.rej.25, p.value.H0.rej.50, p.value.H0.rej.100, p.value.H0.rej.300,
-         e.value.lambda.prod.H0.rej.10, e.value.lambda.prod.H0.rej.25, e.value.lambda.prod.H0.rej.50, e.value.lambda.prod.H0.rej.100, e.value.lambda.prod.H0.rej.300,
-         e.value.grapa.prod.H0.rej.10, e.value.grapa.prod.H0.rej.25, e.value.grapa.prod.H0.rej.50, e.value.grapa.prod.H0.rej.100, e.value.grapa.prod.H0.rej.300,
-         e.value.alt.conf.prod.H0.rej.10, e.value.alt.conf.prod.H0.rej.25, e.value.alt.conf.prod.H0.rej.50, e.value.alt.conf.prod.H0.rej.100, e.value.alt.conf.prod.H0.rej.300,
-         e.value.alt.cons.prod.H0.rej.10, e.value.alt.cons.prod.H0.rej.25, e.value.alt.cons.prod.H0.rej.50, e.value.alt.cons.prod.H0.rej.100, e.value.alt.cons.prod.H0.rej.300,
-         e.value.alt.more.cons.prod.H0.rej.10, e.value.alt.more.cons.prod.H0.rej.25, e.value.alt.more.cons.prod.H0.rej.50, e.value.alt.more.cons.prod.H0.rej.100, e.value.alt.more.cons.prod.H0.rej.300
-  )
+whole.run <- rep(NA, n)
+system.time({
+  for (i in 1:n) {
+    whole.run[i] <- list(e_value(y = data.date[1:i,]$los, crps.F.para = list("points.cdf" = data.date[1:i,]$idr), crps.G.para = list("points.cdf" = data.date[1:i,]$rq)))
+  }
+})
 
-print_for_each_icu_boxplot(dt.data.ex, 'ICU10')
-print_for_each_icu_boxplot(dt.data.ex, 'ICU44')
-print_for_each_icu_boxplot(dt.data.ex, 'ICU65')
-print_for_each_icu_boxplot(dt.data.ex, 'ICU76')
-print_for_each_icu_boxplot(dt.data.ex, 'ICU77')
-
-
-###################
-### inf
-dt.run.inf.check <- dt.data.ex.10$uncompacted %>% filter(names.F == 'idr' &
-                                                           names.G == 'rq' &
-                                                           icu == 'ICU10')
-crps.F.para <- dt.run.inf.check$crps.F.fun[[1]]
-crps.F.para$inf.crps.fun <- \(x, j) { scoringRules::crps_sample(y = x, dat = crps.F.para$points.cdf[j][[1]]$points, w = crps.F.para$points.cdf[j][[1]]$cdf)}
-crps.F.para$inf.crps.fun <- \(x, j) { crps_rw(crps.F.para$points.cdf[[j]]$points, crps.F.para$points.cdf[[j]]$cdf, x) }
-
-
-crps.G.para <- dt.run.inf.check$crps.G.fun[[1]]
-crps.F.para$inf.crps.fun <- \(x, j) { crps_rw(crps.F.para$points.cdf[[j]]$points, crps.F.para$points.cdf[[j]]$cdf, x) }
-
-inf <- get_inf_crps(crps.F.para, crps.G.para, 10)
-
-print_inf <- function(line, from = -10, to = 5) {
-  print(line)
-  x <- seq(from, to, by = 0.01)
-  y <- sapply(x, \(y) { crps.F.para$fun(y) - crps.G.para$fun(y) })
-  plot(x, sort(y), type = "l", col = "red")
-  abline(h = inf)
-  abline(h = -(inf))
-}
-
-print_inf(3, -50, 50)
-mins <- sapply(1:n.obs, \(i) { optim_inf_value(\(x) { crps.F.para$inf.fun(x, i) - crps.G.para$inf.fun(x, i) },
-                                               min.value = -50, max.value = 50) })
-abline(h = mins)
+######################################################################################################################

@@ -1,141 +1,90 @@
-print_further_forecasts_rej_rate <- function(dt.f, f, g) {
-  per.clim <- as.data.frame(t(dt.f %>%
-                                filter(names.F == f & names.G == g) %>%
-                                select(contains("value"))))
-  to.print <- per.clim %>%
-    mutate(which = rownames(per.clim),
-           n_obs = as.numeric(stringr::str_extract(which, "[0-9]{2,3}")),
-           which = stringr::str_replace(which, "(.prod|).H0.rej.[0-9]{2,3}", "")
-    ) %>%
-    select(which, n_obs, rej_rate = V1) %>%
-    arrange(n_obs)
-  p <- ggplot2::ggplot(to.print, ggplot2::aes(x = n_obs, y = rej_rate, color = which)) +
-    ggplot2::geom_line(ggplot2::aes(group = which), size = 0.5) +
+print_further_forecasts_rej_rate <- function(dt.f) {
+  p <- ggplot2::ggplot(dt.f, ggplot2::aes(x = n.obs, y = rej_rate, color = key)) +
+    ggplot2::geom_line(ggplot2::aes(group = key), size = 0.5) +
     ggplot2::scale_x_continuous(limits = c(10, 300), breaks = c(10, 25, 50, 100, 300)) +
     ggplot2::scale_y_continuous(limits = c(0, 100)) +
     ggplot2::scale_colour_manual(values = c("blue", "cornflowerblue", "cyan", "darkgreen", "darkolivegreen3", "red"), name = NULL) +
-    ggplot2::geom_line(data = filter(to.print, which == "p.value"), size = 1) +
-    ggplot2::theme(legend.position = "none") +
-    ggplot2::ggtitle(paste(f, "vs", g)) +
+    ggplot2::geom_line(data = filter(dt.f, key == "p.value"), size = 1) +
+    ggplot2::theme(legend.position = "bottom") +
     ggplot2::theme(plot.title = ggplot2::element_text(size = 20), axis.text = ggplot2::element_text(size = 12), axis.title = ggplot2::element_text(size = 12), legend.text = ggplot2::element_text(size = 12)) +
     ggplot2::xlab("k") +
-    ggplot2::ylab("Rej. rate")
+    ggplot2::ylab("Rej. rate") +
+    ggplot2::facet_wrap(~ name, ncol = 3)
   return(p)
 }
 
-print_for_each_k_rej_rate <- function(dt.f, n.it) {
-  cl.pe <- print_further_forecasts_rej_rate(dt.f, 'climatological', 'perfect')
-  cl.sr <- print_further_forecasts_rej_rate(dt.f, 'climatological', 'sign-reversed')
-  cl.un <- print_further_forecasts_rej_rate(dt.f, 'climatological', 'unfocused')
-
-  pe.cl <- print_further_forecasts_rej_rate(dt.f, 'perfect', 'climatological')
-  pe.sr <- print_further_forecasts_rej_rate(dt.f, 'perfect', 'sign-reversed')
-  pe.un <- print_further_forecasts_rej_rate(dt.f, 'perfect', 'unfocused')
-
-  sr.cl <- print_further_forecasts_rej_rate(dt.f, 'sign-reversed', 'climatological')
-  sr.pe <- print_further_forecasts_rej_rate(dt.f, 'sign-reversed', 'perfect')
-  sr.un <- print_further_forecasts_rej_rate(dt.f, 'sign-reversed', 'unfocused')
-
-  un.cl <- print_further_forecasts_rej_rate(dt.f, 'unfocused', 'climatological')
-  un.pe <- print_further_forecasts_rej_rate(dt.f, 'unfocused', 'perfect')
-  un.sr <- print_further_forecasts_rej_rate(dt.f, 'unfocused', 'sign-reversed')
-
-  png(paste0("C:/Users/valer/Documents/UNI/MA/evalues/ma/pictures/print_further_sim_rej_rate_it-", n.it, "_", format(Sys.time(), format = "%d-%m"), ".png"), height = 950, width = 900)
-  g <- ggpubr::ggarrange(pe.cl, pe.sr, pe.un,
-                    cl.pe, cl.sr, cl.un,
-                    sr.pe, sr.cl, sr.un,
-                    un.pe, un.cl, un.sr,
-                    ncol = 3, nrow = 4, common.legend = TRUE, legend = "bottom")
-  print(g)
-  dev.off()
-}
-
 dt.rr.u.f.300 <- dt.u.f.300$evaluated %>%
-  mutate(it = 300) %>%
-  rename_at(vars(contains("value")), list(~paste0(., ".300")))
+  mutate(it = 300)
 dt.rr.u.f.100 <- dt.u.f.100$evaluated %>%
-  mutate(it = 100) %>%
-  rename_at(vars(contains("value")), list(~paste0(., ".100")))
+  mutate(it = 100)
 dt.rr.u.f.50 <- dt.u.f.50$evaluated %>%
-  mutate(it = 50) %>%
-  rename_at(vars(contains("value")), list(~paste0(., ".50")))
+  mutate(it = 50)
 dt.rr.u.f.25 <- dt.u.f.25$evaluated %>%
-  mutate(it = 25) %>%
-  rename_at(vars(contains("value")), list(~paste0(., ".25")))
+  mutate(it = 25)
 dt.rr.u.f.10 <- dt.u.f.10$evaluated %>%
-  mutate(it = 10) %>%
-  rename_at(vars(contains("value")), list(~paste0(., ".10")))
-dt.rr.f <- merge(dt.rr.u.f.300, dt.rr.u.f.100, by = c('names.F' = 'names.F', 'names.G' = 'names.G'))
-dt.rr.f <- merge(dt.rr.f, dt.rr.u.f.50, by = c('names.F' = 'names.F', 'names.G' = 'names.G'))
-dt.rr.f <- merge(dt.rr.f, dt.rr.u.f.25, by = c('names.F' = 'names.F', 'names.G' = 'names.G'))
-dt.rr.f <- merge(dt.rr.f, dt.rr.u.f.10, by = c('names.F' = 'names.F', 'names.G' = 'names.G'))
-dt.rr.f <- dt.rr.f %>%
-  select(names.F, names.G, p.value.H0.rej.10, p.value.H0.rej.25, p.value.H0.rej.50, p.value.H0.rej.100, p.value.H0.rej.300,
-         e.value.lambda.prod.H0.rej.10, e.value.lambda.prod.H0.rej.25, e.value.lambda.prod.H0.rej.50, e.value.lambda.prod.H0.rej.100, e.value.lambda.prod.H0.rej.300,
-         e.value.grapa.prod.H0.rej.10, e.value.grapa.prod.H0.rej.25, e.value.grapa.prod.H0.rej.50, e.value.grapa.prod.H0.rej.100, e.value.grapa.prod.H0.rej.300,
-         e.value.alt.conf.prod.H0.rej.10, e.value.alt.conf.prod.H0.rej.25, e.value.alt.conf.prod.H0.rej.50, e.value.alt.conf.prod.H0.rej.100, e.value.alt.conf.prod.H0.rej.300,
-         e.value.alt.cons.prod.H0.rej.10, e.value.alt.cons.prod.H0.rej.25, e.value.alt.cons.prod.H0.rej.50, e.value.alt.cons.prod.H0.rej.100, e.value.alt.cons.prod.H0.rej.300,
-         e.value.alt.more.cons.prod.H0.rej.10, e.value.alt.more.cons.prod.H0.rej.25, e.value.alt.more.cons.prod.H0.rej.50, e.value.alt.more.cons.prod.H0.rej.100, e.value.alt.more.cons.prod.H0.rej.300
-  )
+  mutate(it = 10)
+dt.rr.f <- dt.rr.u.f.300 %>% ungroup() %>%
+  add_row(dt.rr.u.f.100) %>%
+  add_row(dt.rr.u.f.50) %>%
+  add_row(dt.rr.u.f.25) %>%
+  add_row(dt.rr.u.f.10) %>%
+  mutate(name = paste(names.F, "vs", names.G)) %>%
+  select(-c(names.F, names.G)) %>%
+  tidyr::pivot_longer(!c(name, it), names_to = "key", values_to = "rej_rate") %>%
+  mutate(key = stringr::str_replace(key, "(.prod|).H0.rej", "")) %>%
+  select(n.obs = it, name, key, rej_rate)
 
-print_for_each_k_rej_rate(dt.rr.f, n.it)
+g <- print_further_forecasts_rej_rate(dt.rr.f)
+png(paste0("C:/Users/valer/Documents/UNI/MA/evalues/ma/pictures/print_further_sim_rej_rate_", format(Sys.time(), format = "%d-%m"), ".png"), height = 950, width = 900)
+print(g)
+dev.off()
 
 
 ########################## loosing power
 
-print_rej_loosing_power <- function(dt, n.obs) {
-  to.print <- dt$evaluated %>%
-    filter(grepl("perfect", names.F) & names.G == 'perfect') %>%
-    mutate(e = stringr::str_extract(names.F, "[.0-9]+"),
-           mean.sd = stringr::str_extract(names.F, "perfect-[a-z]")
-    ) %>%
-    ungroup() %>%
-    select(-c(names.F, names.G)) %>%
-    tidyr::pivot_longer(!c(e, mean.sd), names_to = "key", values_to = "rej_rate") %>%
-    mutate(key = stringr::str_replace_all(key, ".prod.H0.rej", "")) %>%
-    mutate(key = stringr::str_replace_all(key, ".H0.rej", "")) %>%
-    arrange(key)
-
-  m <- ggplot2::ggplot(to.print %>%
-                         filter(grepl("-m", mean.sd)) %>%
-                         select(-(mean.sd)), ggplot2::aes(x = as.numeric(e), y = rej_rate, color = key)) +
-    ggplot2::geom_line(ggplot2::aes(group = key)) +
+print_rej_loosing_power <- function(to.print) {
+  m <- ggplot2::ggplot(to.print, ggplot2::aes(x = as.numeric(e), y = rej_rate, color = key)) +
+    ggplot2::geom_line(ggplot2::aes(group = key), size = 0.5) +
     ggplot2::geom_hline(yintercept = 5, linetype = "dotted") +
     ggplot2::scale_x_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.1)) +
     ggplot2::ylim(c(0,100)) +
     ggplot2::ylab("Rej. rate") +
-    ggplot2::xlab(latex2exp::TeX("$\\epsilon_1$")) +
-    ggplot2::ggtitle(latex2exp::TeX(paste0("N($\\mu +\\epsilon_1,\\sigma^2$),n=", n.obs))) +
+    ggplot2::xlab("e") +
+    ggplot2::theme(legend.position = "bottom") +
     ggplot2::theme(text = ggplot2::element_text(size = 18)) +
     ggplot2::scale_colour_manual(values = c("blue", "cornflowerblue", "cyan", "darkgreen", "darkolivegreen3", "red"), name = NULL) +
-    ggplot2::geom_line(data = filter(to.print %>%
-                                       filter(grepl("-m", mean.sd)) %>%
-                                       select(-(mean.sd)), key == "p.value"), size = 2)
-  s <- ggplot2::ggplot(to.print %>%
-                         filter(grepl("-s", mean.sd)) %>%
-                         select(-(mean.sd)), ggplot2::aes(x = as.numeric(e), y = rej_rate, color = key)) +
-    ggplot2::geom_line(ggplot2::aes(group = key)) +
-    ggplot2::geom_hline(yintercept = 5, linetype = "dotted") +
-    ggplot2::scale_x_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.1)) +
-    ggplot2::ylab("Rej. rate") +
-    ggplot2::ylim(c(0,100)) +
-    ggplot2::xlab(latex2exp::TeX("$\\epsilon_2$")) +
-    ggplot2::ggtitle(latex2exp::TeX(paste0("$N(\\mu ,\\sigma^2 +\\epsilon_2)$,n=", n.obs))) +
-    ggplot2::theme(text = ggplot2::element_text(size = 18)) +
-    ggplot2::scale_colour_manual(values = c("blue", "cornflowerblue", "cyan", "darkgreen", "darkolivegreen3", "red"), name = NULL) +
-    ggplot2::geom_line(data = filter(to.print %>%
-                                       filter(grepl("-s", mean.sd)) %>%
-                                       select(-(mean.sd)), key == "p.value"), size = 2)
-  return(list("m" = m, "s" = s))
+    ggplot2::geom_line(data = filter(to.print, key == "p.value"), size = 1) +
+    ggplot2::facet_grid(n.obs ~ m.s)
+  return(m)
 }
 
-p.10 <- print_rej_loosing_power(dt.l.p.o.10, 10)
-p.25 <- print_rej_loosing_power(dt.l.p.o.25, 25)
-p.50 <- print_rej_loosing_power(dt.l.p.o.50, 50)
-p.100 <- print_rej_loosing_power(dt.l.p.o.100, 100)
-p.300 <- print_rej_loosing_power(dt.l.p.o.300, 300)
+dt.rr.l.p.10 <-  dt.l.p.f.10$evaluated %>%
+  mutate(it = 10)
+dt.rr.l.p.25 <-  dt.l.p.f.25$evaluated %>%
+  mutate(it = 25)
+dt.rr.l.p.50 <-  dt.l.p.f.50$evaluated %>%
+  mutate(it = 50)
+dt.rr.l.p.100 <- dt.l.p.f.100$evaluated %>%
+  mutate(it = 100)
+dt.rr.l.p.300 <- dt.l.p.f.300$evaluated %>%
+  mutate(it = 300)
+dt.rr.l.p <- dt.rr.l.p.300 %>% ungroup() %>%
+  add_row(dt.rr.l.p.100) %>%
+  add_row(dt.rr.l.p.50) %>%
+  add_row(dt.rr.l.p.25) %>%
+  add_row(dt.rr.l.p.10) %>%
+  filter(grepl("perfect", names.F) & names.G == 'perfect') %>%
+  mutate(e = stringr::str_extract(names.F,"[.0-9]+"),
+         m.s = stringr::str_extract(names.F, "perfect-[a-z]"),
+         m.s = stringr::str_extract(m.s, "[a-z]$"),
+         m.s = ifelse(m.s == 'm', "N(mu + e, sd^s)", "N(mu, sd^2 + e)")
+         ) %>%
+  select(-c(names.F, names.G)) %>%
+  tidyr::pivot_longer(!c(m.s, it, e), names_to = "key", values_to = "rej_rate") %>%
+  mutate(key = stringr::str_replace(key, "(.prod|).H0.rej", "")) %>%
+  select(n.obs = it, m.s, e, key, rej_rate)
 
-png(paste0("C:/Users/valer/Documents/UNI/MA/evalues/ma/pictures/print_rej_bias_it-", n.it, "_", format(Sys.time(), format = "%d-%m"), ".png"), height = 1150, width = 600)
-ggpubr::ggarrange(p.10$m, p.10$s, p.25$m, p.25$s, p.50$m, p.50$s, p.100$m, p.100$s, p.300$m, p.300$s,
-                  ncol = 2, nrow = 5, common.legend = TRUE, legend = "bottom")
+g <- print_rej_loosing_power(dt.rr.l.p)
+png(paste0("C:/Users/valer/Documents/UNI/MA/evalues/ma/pictures/print_rej_bias_", format(Sys.time(), format = "%d-%m"), ".png"), height = 1150, width = 600)
+print(g)
 dev.off()

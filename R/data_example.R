@@ -32,7 +32,7 @@ calculate_e_values_data_example_for_each <- function(input.data, crps.F.para, cr
   sequential.run[1] <- list(first.run)
   pb$tick(1)
   for (t in 2:n.it) {
-    first.run <- next_k_e_values(first.run, new.y = input.data[t,]$los, new.crps.F.para = crps.F.para[t], new.crps.G.para = crps.G.para[t])
+    first.run <- e_value(old.run.e.value = first.run, new.y = input.data[t,]$los, new.crps.F.para = crps.F.para[t], new.crps.G.para = crps.G.para[t])
     sequential.run[t] <- list(first.run)
     pb$tick(1)
   }

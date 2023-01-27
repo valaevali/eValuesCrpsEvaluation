@@ -14,7 +14,7 @@
 #' @export
 sim_e_values <- function(n.it = 200, n.obs = 100, loosing.power.only = FALSE,
                          method = list("GRAPA", "lambda", "alt-conf", "alt-cons", "alt-more-cons"), lambda = 0.5, p.value.method = "t",
-                         forecasts.input = NA, loosing.power.forecasts = loosing.power.only, usual.forecasts = TRUE, file.folder = getwd()) {
+                         forecasts.input = NA, loosing.power.forecasts = loosing.power.only, usual.forecasts = TRUE, file.folder = getwd(), prefix = "u-f") {
   checkedInput <- check_input_simulation(n.it, n.obs, loosing.power.only, method, lambda, p.value.method, forecasts.input, loosing.power.forecasts, usual.forecasts, file.folder)
   n.it <- checkedInput$n.it
   n.obs <- checkedInput$n.obs
@@ -56,14 +56,16 @@ sim_e_values <- function(n.it = 200, n.obs = 100, loosing.power.only = FALSE,
       mutate(names.F = rownames(temp)) %>%
       tidyr::pivot_longer(cols = colnames(temp.tibble), names_to = "names.G") %>%
       tidyr::unnest_wider(value) %>%
-      na.omit(crps.F)
+      na.omit(crps.F) %>%
+      select(-c(crps.alt.cons, crps.alt.conf, crps.alt.more.cons))
     temp.tibble
   }
 
   timestamp <- format(Sys.time(), format = "%Y-%m-%dT%H-%M-%S")
   result.eval <- result %>%
     group_by(names.F, names.G) %>%
-    mutate(across(contains(c("p.value", "prod")), ~100 / n.it * sum((1 / .x) <= 0.05), .names = "{.col}.H0.rej")) %>%
+    mutate(across(contains("prod"), ~100 / n.it * sum((1 / .x) <= 0.05), .names = "{.col}.H0.rej")) %>%
+    mutate(across(contains("p.value") & !contains("method"), ~100 / n.it * sum((.x) <= 0.05), .names = "{.col}.H0.rej")) %>%
     select(contains(c("names", "H0"))) %>%
     distinct() %>%
     arrange(names.F, names.G)
@@ -71,12 +73,7 @@ sim_e_values <- function(n.it = 200, n.obs = 100, loosing.power.only = FALSE,
   print(Sys.time() - start.time)
   result.fin <- list("uncompacted" = result, "evaluated" = result.eval)
 
-  saveRDS(result.fin, paste0(file.folder, "/target/run-", n.obs, "-", n.it, "-", timestamp, ".rds"))
-  if (loosing.power.only) {
-    pdf(paste0(file.folder, "/target/plot-", n.obs, "-", n.it, "-", timestamp, ".pdf"))
-    print_rej_rate_perfect_loosing_power(result.fin)
-    dev.off()
-  }
+  saveRDS(result.fin, paste0(file.folder, "/target/run-", prefix, "-", n.obs, "-", n.it, "-", timestamp, ".rds"))
 
   return(result.fin)
 }

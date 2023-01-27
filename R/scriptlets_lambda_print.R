@@ -1,6 +1,6 @@
 print_further_forecasts_lambda <- function(to.print, lambda.name) {
-  p <- ggplot2::ggplot(to.print, ggplot2::aes(x = n, y = lambda, color = it)) +
-    ggplot2::geom_line(ggplot2::aes(group = it)) +
+  p <- ggplot2::ggplot(to.print, ggplot2::aes(x = n, y = lambda, color = idx)) +
+    ggplot2::geom_line(ggplot2::aes(group = idx)) +
     ggplot2::theme(legend.position = "bottom") +
     ggplot2::theme(plot.title = ggplot2::element_text(size = 18), axis.text = ggplot2::element_text(size = 12), axis.title = ggplot2::element_text(size = 12), legend.text = ggplot2::element_text(size = 12)) +
     ggplot2::xlab("number of obs") +
@@ -11,13 +11,13 @@ print_further_forecasts_lambda <- function(to.print, lambda.name) {
 
 # lambda grapa
 dt.lambda.grapa.u.f.300 <- dt.u.f.300$uncompacted %>%
-  select(names.F, names.G, lambda = lambda.grapa, it) %>%
+  select(names.F, names.G, lambda = lambda.grapa, idx) %>%
   tidyr::unnest(lambda) %>%
-  arrange(it)
+  arrange(idx)
 dt.lambda.grapa.u.f <- dt.lambda.grapa.u.f.300 %>%
   mutate(name = paste(names.F, "vs", names.G)) %>%
   select(-c(names.F, names.G)) %>%
-  group_by(it, name) %>%
+  group_by(idx, name) %>%
   mutate(n = 1:n())
 
 g <- print_further_forecasts_lambda(dt.lambda.grapa.u.f, "lambda GRAPA")
@@ -27,13 +27,13 @@ dev.off()
 
 ### lambda conservative
 dt.lambda.cons.u.f.300 <- dt.u.f.300$uncompacted %>%
-  select(names.F, names.G, lambda = lambda.alt.cons, it) %>%
+  select(names.F, names.G, lambda = lambda.alt.cons, idx) %>%
   tidyr::unnest(lambda) %>%
-  arrange(it)
+  arrange(idx)
 dt.lambda.cons.u.f <- dt.lambda.cons.u.f.300 %>%
   mutate(name = paste(names.F, "vs", names.G)) %>%
   select(-c(names.F, names.G)) %>%
-  group_by(it, name) %>%
+  group_by(idx, name) %>%
   mutate(n = 1:n())
 
 g <- print_further_forecasts_lambda(dt.lambda.cons.u.f, "lambda cons")
@@ -43,13 +43,13 @@ dev.off()
 
 ### lambda more conservative
 dt.lambda.more.cons.u.f.300 <- dt.u.f.300$uncompacted %>%
-  select(names.F, names.G, lambda = lambda.alt.more.cons, it) %>%
+  select(names.F, names.G, lambda = lambda.alt.more.cons, idx) %>%
   tidyr::unnest(lambda) %>%
-  arrange(it)
+  arrange(idx)
 dt.lambda.more.cons.u.f <- dt.lambda.more.cons.u.f.300 %>%
   mutate(name = paste(names.F, "vs", names.G)) %>%
   select(-c(names.F, names.G)) %>%
-  group_by(it, name) %>%
+  group_by(idx, name) %>%
   mutate(n = 1:n())
 
 g <- print_further_forecasts_lambda(dt.lambda.more.cons.u.f, "lambda more cons")
@@ -59,13 +59,13 @@ dev.off()
 
 ### lambda conf
 dt.lambda.conf.u.f.300 <- dt.u.f.300$uncompacted %>%
-  select(names.F, names.G, lambda = lambda.alt.conf, it) %>%
+  select(names.F, names.G, lambda = lambda.alt.conf, idx) %>%
   tidyr::unnest(lambda) %>%
-  arrange(it)
+  arrange(idx)
 dt.lambda.conf.u.f <- dt.lambda.conf.u.f.300 %>%
   mutate(name = paste(names.F, "vs", names.G)) %>%
   select(-c(names.F, names.G)) %>%
-  group_by(it, name) %>%
+  group_by(idx, name) %>%
   mutate(n = 1:n())
 
 g <- print_further_forecasts_lambda(dt.lambda.conf.u.f, "lambda conf")

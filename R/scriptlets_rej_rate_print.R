@@ -75,7 +75,7 @@ g <- ggplot2::ggplot(dt.rr.l.p, ggplot2::aes(x = as.numeric(e), y = rej_rate, co
   ggplot2::theme(legend.position = "bottom") +
   ggplot2::theme(text = ggplot2::element_text(size = 18)) +
   ggplot2::scale_colour_manual(values = c("blue", "maroon", "cyan", "darkgreen", "darkorange", "red")) +
-  ggplot2::geom_line(data = filter(dt.rr.l.p, key == "p.value"), size = 1) +
+  ggplot2::geom_line(data = filter(dt.rr.l.p, key == "p.value"), linewidth = 1) +
   ggplot2::facet_grid(n.obs ~ m.s)
 
 png(paste0("C:/Users/valer/Documents/UNI/MA/evalues/ma/pictures/print_rej_bias_", format(Sys.time(), format = "%d-%m"), ".png"), height = 1150, width = 600)

@@ -352,3 +352,17 @@ g <- ggplot2::ggplot(dt.los, ggplot2::aes(x = date, y = los)) +
 png(paste0("C:/Users/valer/Documents/UNI/MA/evalues/ma/pictures/print_data_example_los_", format(Sys.time(), format = "%d-%m"), ".png"), height = 500, width = 900)
 print(g)
 dev.off()
+
+
+
+## minimal observations needed to reject the null hypothesis
+dt <- dt.data.ex.icu10 %>% group_by(which) %>% mutate(n = 1:n()) %>% filter(e.value.alt.cons.prod >= 1) %>% slice(which.min(date)) %>% select(icu, which, n) %>% ungroup() %>%
+  add_row(dt.data.ex.icu44 %>% group_by(which) %>% mutate(n = 1:n()) %>% filter(e.value.alt.cons.prod >= 1) %>% slice(which.min(date)) %>% select(icu, which, n)) %>%
+  add_row(dt.data.ex.icu65 %>% group_by(which) %>% mutate(n = 1:n()) %>% filter(e.value.alt.cons.prod >= 1) %>% slice(which.min(date)) %>% select(icu, which, n)) %>%
+  add_row(dt.data.ex.icu76 %>% group_by(which) %>% mutate(n = 1:n()) %>% filter(e.value.alt.cons.prod >= 1) %>% slice(which.min(date)) %>% select(icu, which, n)) %>%
+  add_row(dt.data.ex.icu77 %>% group_by(which) %>% mutate(n = 1:n()) %>% filter(e.value.alt.cons.prod >= 1) %>% slice(which.min(date)) %>% select(icu, which, n))
+dt <- dt %>% tidyr::pivot_wider(names_from = which, values_from = n) %>% mutate('idr vs cox' = as.integer(NA), 'idr vs rq' = as.integer(NA)) %>% select(icu, 'cox vs idr', 'cox vs rq', 'idr vs rq', 'idr vs cox', 'rq vs idr', 'rq vs cox')
+
+data.dt <- DT::datatable(dt, escape = FALSE, rownames = FALSE, options = list(dom = 'Bfrtip', pageLength = 15, bFilter = 0, bInfo = 0, bPaginate = 0))
+htmlwidgets::saveWidget(data.dt, tf <- tempfile(fileext = ".html"), selfcontained = FALSE)
+shell.exec(tf)

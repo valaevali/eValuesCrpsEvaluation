@@ -10,7 +10,7 @@ print_further_forecasts_lambda <- function(to.print, lambda.name) {
 }
 
 # lambda grapa
-dt.lambda.grapa.u.f.300 <- dt.u.f.300$uncompacted %>%
+dt.lambda.grapa.u.f.300 <- dt.u.f.50$uncompacted %>%
   select(names.F, names.G, lambda = lambda.grapa, idx) %>%
   tidyr::unnest(lambda) %>%
   arrange(idx)
@@ -21,12 +21,12 @@ dt.lambda.grapa.u.f <- dt.lambda.grapa.u.f.300 %>%
   mutate(n = 1:n())
 
 g <- print_further_forecasts_lambda(dt.lambda.grapa.u.f, "lambda GRAPA")
-png(paste0("C:/Users/valer/Documents/UNI/MA/evalues/ma/pictures/print_further_sim_lambda_grapa_", format(Sys.time(), format = "%m-%d"), ".png"), height = 950, width = 900)
+png(paste0("C:/Users/valer/Documents/UNI/MA/evalues/ma/pictures/print_further_sim_lambda_grapa_50_", format(Sys.time(), format = "%m-%d"), ".png"), height = 950, width = 900)
 print(g)
 dev.off()
 
 ### lambda conservative
-dt.lambda.cons.u.f.300 <- dt.u.f.300$uncompacted %>%
+dt.lambda.cons.u.f.300 <- dt.u.f.50$uncompacted %>%
   select(names.F, names.G, lambda = lambda.alt.cons, idx) %>%
   tidyr::unnest(lambda) %>%
   arrange(idx)
@@ -37,12 +37,12 @@ dt.lambda.cons.u.f <- dt.lambda.cons.u.f.300 %>%
   mutate(n = 1:n())
 
 g <- print_further_forecasts_lambda(dt.lambda.cons.u.f, "lambda cons")
-png(paste0("C:/Users/valer/Documents/UNI/MA/evalues/ma/pictures/print_further_sim_lambda_cons_", format(Sys.time(), format = "%m-%d"), ".png"), height = 950, width = 900)
+png(paste0("C:/Users/valer/Documents/UNI/MA/evalues/ma/pictures/print_further_sim_lambda_cons_50_", format(Sys.time(), format = "%m-%d"), ".png"), height = 950, width = 900)
 print(g)
 dev.off()
 
 ### lambda more conservative
-dt.lambda.more.cons.u.f.300 <- dt.u.f.300$uncompacted %>%
+dt.lambda.more.cons.u.f.300 <- dt.u.f.50$uncompacted %>%
   select(names.F, names.G, lambda = lambda.alt.more.cons, idx) %>%
   tidyr::unnest(lambda) %>%
   arrange(idx)
@@ -53,12 +53,12 @@ dt.lambda.more.cons.u.f <- dt.lambda.more.cons.u.f.300 %>%
   mutate(n = 1:n())
 
 g <- print_further_forecasts_lambda(dt.lambda.more.cons.u.f, "lambda more cons")
-png(paste0("C:/Users/valer/Documents/UNI/MA/evalues/ma/pictures/print_further_sim_lambda_more_cons_", format(Sys.time(), format = "%m-%d"), ".png"), height = 950, width = 900)
+png(paste0("C:/Users/valer/Documents/UNI/MA/evalues/ma/pictures/print_further_sim_lambda_more_cons_50_", format(Sys.time(), format = "%m-%d"), ".png"), height = 950, width = 900)
 print(g)
 dev.off()
 
 ### lambda conf
-dt.lambda.conf.u.f.300 <- dt.u.f.300$uncompacted %>%
+dt.lambda.conf.u.f.300 <- dt.u.f.50$uncompacted %>%
   select(names.F, names.G, lambda = lambda.alt.conf, idx) %>%
   tidyr::unnest(lambda) %>%
   arrange(idx)
@@ -69,6 +69,6 @@ dt.lambda.conf.u.f <- dt.lambda.conf.u.f.300 %>%
   mutate(n = 1:n())
 
 g <- print_further_forecasts_lambda(dt.lambda.conf.u.f, "lambda conf")
-png(paste0("C:/Users/valer/Documents/UNI/MA/evalues/ma/pictures/print_further_sim_lambda_conf_", format(Sys.time(), format = "%m-%d"), ".png"), height = 950, width = 900)
+png(paste0("C:/Users/valer/Documents/UNI/MA/evalues/ma/pictures/print_further_sim_lambda_conf_50_", format(Sys.time(), format = "%m-%d"), ".png"), height = 950, width = 900)
 print(g)
 dev.off()

@@ -198,15 +198,75 @@ g <- ggplot2::ggplot(dt.data.ex, ggplot2::aes(x = date, y = e.value.alt.cons.pro
   ggplot2::geom_line(ggplot2::aes(linetype = which, color = which), linewidth = 1) +
   ggplot2::scale_color_manual(values = c("green", "blue", "orange", "red", "purple", "black")) +
   ggplot2::theme(legend.position = "bottom") +
+  ggplot2::coord_cartesian(ylim = c(0, 5)) +
+  ggplot2::theme(plot.title = ggplot2::element_text(size = 20, color = "red"), axis.text = ggplot2::element_text(size = 12),
+                 strip.text.x = ggplot2::element_text(size = 12), strip.text.y = ggplot2::element_text(size = 12),
+                 axis.text.x = ggplot2::element_text(angle = 70, vjust = 0.9, hjust = 1)) +
+  ggplot2::ylab("E-process") +
+  ggplot2::facet_wrap(. ~ icu, ncol = 2, scales = "free_x") +
+  ggplot2::xlab("")
+
+png(paste0("C:/Users/valer/Documents/UNI/MA/evalues/ma/pictures/print_data_example_all-icus_", format(Sys.time(), format = "%d-%m"), ".png"), height = 950, width = 600)
+print(g)
+dev.off()
+
+g <- ggplot2::ggplot(dt.data.ex %>% filter(!grepl("first", icu)), ggplot2::aes(x = date, y = e.value.alt.cons.prod, group = which)) +
+  ggplot2::geom_line(ggplot2::aes(linetype = which, color = which), linewidth = 1) +
+  ggplot2::scale_color_manual(values = c("green", "blue", "orange", "red", "purple", "black")) +
+  ggplot2::theme(legend.position = "bottom") +
   ggplot2::coord_cartesian(ylim = c(0.995, 1.005)) +
   ggplot2::theme(plot.title = ggplot2::element_text(size = 20, color = "red"), axis.text = ggplot2::element_text(size = 12),
                  strip.text.x = ggplot2::element_text(size = 12), strip.text.y = ggplot2::element_text(size = 12),
                  axis.text.x = ggplot2::element_text(angle = 70, vjust = 0.9, hjust = 1)) +
-  ggplot2::ylab("E-value process") +
-  ggplot2::facet_wrap(. ~ icu, ncol = 2, scales = "free_x") +
+  ggplot2::ylab("E-process") +
+  ggplot2::facet_wrap(. ~ icu, ncol = 1, scales = "free_x") +
   ggplot2::xlab("")
 
 png(paste0("C:/Users/valer/Documents/UNI/MA/evalues/ma/pictures/print_data_example_all-icus_around_1_", format(Sys.time(), format = "%d-%m"), ".png"), height = 950, width = 600)
+print(g)
+dev.off()
+
+dt.data.ex.icu10.early.log <- dt.data.ex.icu10 %>%
+  mutate(e.value.alt.cons.prod.log = log(e.value.alt.cons.prod)) %>%
+  filter(as.Date(date) < as.Date('2016-09-16')) %>%
+  mutate(icu = paste('ICU10 - log - first', n(), 'obs'))
+dt.data.ex.icu44.early.log <- dt.data.ex.icu44 %>%
+  mutate(e.value.alt.cons.prod.log = log(e.value.alt.cons.prod)) %>%
+  filter(as.Date(date) < as.Date('2016-11-14')) %>%
+  mutate(icu = paste('ICU44 - log - first', n(), 'obs'))
+dt.data.ex.icu65.early.log <- dt.data.ex.icu65 %>%
+  mutate(e.value.alt.cons.prod.log = log(e.value.alt.cons.prod)) %>%
+  filter(as.Date(date) < as.Date('2017-03-21')) %>%
+  mutate(icu = paste('ICU65 - log - first', n(), 'obs'))
+dt.data.ex.icu76.early.log <- dt.data.ex.icu76 %>%
+  mutate(e.value.alt.cons.prod.log = log(e.value.alt.cons.prod)) %>%
+  filter(as.Date(date) < as.Date('2016-10-30')) %>%
+  mutate(icu = paste('ICU76 - log - first', n(), 'obs'))
+dt.data.ex.icu77.early.log <- dt.data.ex.icu77 %>%
+  mutate(e.value.alt.cons.prod.log = log(e.value.alt.cons.prod)) %>%
+  filter(as.Date(date) < as.Date('2017-12-16')) %>%
+  mutate(icu = paste('ICU77 - log - first', n(), 'obs'))
+dt.data.ex.log <- dt.data.ex.icu10.early.log %>%
+  add_row(dt.data.ex.icu44.early.log) %>%
+  add_row(dt.data.ex.icu65.early.log) %>%
+  add_row(dt.data.ex.icu76.early.log) %>%
+  add_row(dt.data.ex.icu77.early.log) %>%
+  mutate(across(icu, factor, levels = c(dt.data.ex.icu10.early.log$icu[1], dt.data.ex.icu44.early.log$icu[1], dt.data.ex.icu65.early.log$icu[1], dt.data.ex.icu76.early.log$icu[1], dt.data.ex.icu77.early.log$icu[1]))) %>%
+  filter(is.finite(e.value.alt.cons.prod.log))
+
+g <- ggplot2::ggplot(dt.data.ex.log, ggplot2::aes(x = date, y = e.value.alt.cons.prod.log, group = which)) +
+  ggplot2::geom_line(ggplot2::aes(linetype = which, color = which), linewidth = 1) +
+  ggplot2::scale_color_manual(values = c("green", "blue", "orange", "red", "purple", "black")) +
+  ggplot2::theme(legend.position = "bottom") +
+  ggplot2::coord_cartesian(ylim = c(0, 50)) +
+  ggplot2::theme(plot.title = ggplot2::element_text(size = 20, color = "red"), axis.text = ggplot2::element_text(size = 12),
+                 strip.text.x = ggplot2::element_text(size = 12), strip.text.y = ggplot2::element_text(size = 12),
+                 axis.text.x = ggplot2::element_text(angle = 70, vjust = 0.9, hjust = 1)) +
+  ggplot2::ylab("E-process") +
+  ggplot2::facet_wrap(. ~ icu, ncol = 1, scales = "free_x") +
+  ggplot2::xlab("")
+
+png(paste0("C:/Users/valer/Documents/UNI/MA/evalues/ma/pictures/print_data_example_all-icus_log_scale_", format(Sys.time(), format = "%d-%m"), ".png"), height = 950, width = 600)
 print(g)
 dev.off()
 
@@ -247,9 +307,10 @@ dt.data.ex.dt <- dt.data.ex.icu10.early %>%
   group_by(icu, which) %>%
   slice(which.max(date)) %>%
   select(-date) %>%
-  mutate(e.value.alt.cons.prod = ifelse(is.infinite(e.value.alt.cons.prod), "Inf", toString(e.value.alt.cons.prod)))
+  mutate(e.value.alt.cons.prod = ifelse(is.infinite(e.value.alt.cons.prod), "Inf", toString(round(e.value.alt.cons.prod, digits = 3))))
 dt.data.ex.dt <- dt.data.ex.dt %>%
-  tidyr::pivot_wider(names_from = which, values_from = e.value.alt.cons.prod)
+  tidyr::pivot_wider(names_from = which, values_from = e.value.alt.cons.prod) %>%
+  select(icu, 'cox vs idr', 'cox vs rq', 'idr vs cox', 'idr vs rq', 'rq vs cox', 'rq vs idr')
 
 dt <- DT::datatable(dt.data.ex.dt, escape = FALSE, rownames = FALSE, options = list(dom = 'Bfrtip', pageLength = 15, bFilter = 0, bInfo = 0, bPaginate = 0))
 htmlwidgets::saveWidget(dt, tf <- tempfile(fileext = ".html"), selfcontained = FALSE)
@@ -257,80 +318,82 @@ shell.exec(tf)
 
 
 ######## Comparing the p-value for the whole set
-p.value.icu10.idrvsrq  <- e_value(y = input.list$ICU10$los, crps.F.para = list("points.cdf" = input.list$ICU10$idr), crps.G.para = list("points.cdf" = input.list$ICU10$rq), method = NA, p.value.method = "t")
+p.value.icu10.idrvsrq <- e_value(y = input.list$ICU10$los, crps.F.para = list("points.cdf" = input.list$ICU10$idr), crps.G.para = list("points.cdf" = input.list$ICU10$rq), method = NA, p.value.method = "t")
 p.value.icu10.idrvscox <- e_value(y = input.list$ICU10$los, crps.F.para = list("points.cdf" = input.list$ICU10$idr), crps.G.para = list("points.cdf" = input.list$ICU10$cox), method = NA, p.value.method = "t")
-p.value.icu10.rqvsidr  <- e_value(y = input.list$ICU10$los, crps.F.para = list("points.cdf" = input.list$ICU10$rq), crps.G.para = list("points.cdf" = input.list$ICU10$idr), method = NA, p.value.method = "t")
-p.value.icu10.rqvscox  <- e_value(y = input.list$ICU10$los, crps.F.para = list("points.cdf" = input.list$ICU10$rq), crps.G.para = list("points.cdf" = input.list$ICU10$cox), method = NA, p.value.method = "t")
+p.value.icu10.rqvsidr <- e_value(y = input.list$ICU10$los, crps.F.para = list("points.cdf" = input.list$ICU10$rq), crps.G.para = list("points.cdf" = input.list$ICU10$idr), method = NA, p.value.method = "t")
+p.value.icu10.rqvscox <- e_value(y = input.list$ICU10$los, crps.F.para = list("points.cdf" = input.list$ICU10$rq), crps.G.para = list("points.cdf" = input.list$ICU10$cox), method = NA, p.value.method = "t")
 p.value.icu10.coxvsidr <- e_value(y = input.list$ICU10$los, crps.F.para = list("points.cdf" = input.list$ICU10$cox), crps.G.para = list("points.cdf" = input.list$ICU10$idr), method = NA, p.value.method = "t")
-p.value.icu10.coxvsrq  <- e_value(y = input.list$ICU10$los, crps.F.para = list("points.cdf" = input.list$ICU10$cox), crps.G.para = list("points.cdf" = input.list$ICU10$rq), method = NA, p.value.method = "t")
+p.value.icu10.coxvsrq <- e_value(y = input.list$ICU10$los, crps.F.para = list("points.cdf" = input.list$ICU10$cox), crps.G.para = list("points.cdf" = input.list$ICU10$rq), method = NA, p.value.method = "t")
 
-p.value.icu44.idrvsrq  <- e_value(y = input.list$ICU44$los, crps.F.para = list("points.cdf" = input.list$ICU44$idr), crps.G.para = list("points.cdf" = input.list$ICU44$rq), method = NA, p.value.method = "t")
+p.value.icu44.idrvsrq <- e_value(y = input.list$ICU44$los, crps.F.para = list("points.cdf" = input.list$ICU44$idr), crps.G.para = list("points.cdf" = input.list$ICU44$rq), method = NA, p.value.method = "t")
 p.value.icu44.idrvscox <- e_value(y = input.list$ICU44$los, crps.F.para = list("points.cdf" = input.list$ICU44$idr), crps.G.para = list("points.cdf" = input.list$ICU44$cox), method = NA, p.value.method = "t")
-p.value.icu44.rqvsidr  <- e_value(y = input.list$ICU44$los, crps.F.para = list("points.cdf" = input.list$ICU44$rq), crps.G.para = list("points.cdf" = input.list$ICU44$idr), method = NA, p.value.method = "t")
-p.value.icu44.rqvscox  <- e_value(y = input.list$ICU44$los, crps.F.para = list("points.cdf" = input.list$ICU44$rq), crps.G.para = list("points.cdf" = input.list$ICU44$cox), method = NA, p.value.method = "t")
+p.value.icu44.rqvsidr <- e_value(y = input.list$ICU44$los, crps.F.para = list("points.cdf" = input.list$ICU44$rq), crps.G.para = list("points.cdf" = input.list$ICU44$idr), method = NA, p.value.method = "t")
+p.value.icu44.rqvscox <- e_value(y = input.list$ICU44$los, crps.F.para = list("points.cdf" = input.list$ICU44$rq), crps.G.para = list("points.cdf" = input.list$ICU44$cox), method = NA, p.value.method = "t")
 p.value.icu44.coxvsidr <- e_value(y = input.list$ICU44$los, crps.F.para = list("points.cdf" = input.list$ICU44$cox), crps.G.para = list("points.cdf" = input.list$ICU44$idr), method = NA, p.value.method = "t")
-p.value.icu44.coxvsrq  <- e_value(y = input.list$ICU44$los, crps.F.para = list("points.cdf" = input.list$ICU44$cox), crps.G.para = list("points.cdf" = input.list$ICU44$rq), method = NA, p.value.method = "t")
+p.value.icu44.coxvsrq <- e_value(y = input.list$ICU44$los, crps.F.para = list("points.cdf" = input.list$ICU44$cox), crps.G.para = list("points.cdf" = input.list$ICU44$rq), method = NA, p.value.method = "t")
 
-p.value.icu65.idrvsrq  <- e_value(y = input.list$ICU65$los, crps.F.para = list("points.cdf" = input.list$ICU65$idr), crps.G.para = list("points.cdf" = input.list$ICU65$rq), method = NA, p.value.method = "t")
+p.value.icu65.idrvsrq <- e_value(y = input.list$ICU65$los, crps.F.para = list("points.cdf" = input.list$ICU65$idr), crps.G.para = list("points.cdf" = input.list$ICU65$rq), method = NA, p.value.method = "t")
 p.value.icu65.idrvscox <- e_value(y = input.list$ICU65$los, crps.F.para = list("points.cdf" = input.list$ICU65$idr), crps.G.para = list("points.cdf" = input.list$ICU65$cox), method = NA, p.value.method = "t")
-p.value.icu65.rqvsidr  <- e_value(y = input.list$ICU65$los, crps.F.para = list("points.cdf" = input.list$ICU65$rq), crps.G.para = list("points.cdf" = input.list$ICU65$idr), method = NA, p.value.method = "t")
-p.value.icu65.rqvscox  <- e_value(y = input.list$ICU65$los, crps.F.para = list("points.cdf" = input.list$ICU65$rq), crps.G.para = list("points.cdf" = input.list$ICU65$cox), method = NA, p.value.method = "t")
+p.value.icu65.rqvsidr <- e_value(y = input.list$ICU65$los, crps.F.para = list("points.cdf" = input.list$ICU65$rq), crps.G.para = list("points.cdf" = input.list$ICU65$idr), method = NA, p.value.method = "t")
+p.value.icu65.rqvscox <- e_value(y = input.list$ICU65$los, crps.F.para = list("points.cdf" = input.list$ICU65$rq), crps.G.para = list("points.cdf" = input.list$ICU65$cox), method = NA, p.value.method = "t")
 p.value.icu65.coxvsidr <- e_value(y = input.list$ICU65$los, crps.F.para = list("points.cdf" = input.list$ICU65$cox), crps.G.para = list("points.cdf" = input.list$ICU65$idr), method = NA, p.value.method = "t")
-p.value.icu65.coxvsrq  <- e_value(y = input.list$ICU65$los, crps.F.para = list("points.cdf" = input.list$ICU65$cox), crps.G.para = list("points.cdf" = input.list$ICU65$rq), method = NA, p.value.method = "t")
+p.value.icu65.coxvsrq <- e_value(y = input.list$ICU65$los, crps.F.para = list("points.cdf" = input.list$ICU65$cox), crps.G.para = list("points.cdf" = input.list$ICU65$rq), method = NA, p.value.method = "t")
 
-p.value.icu76.idrvsrq  <- e_value(y = input.list$ICU76$los, crps.F.para = list("points.cdf" = input.list$ICU76$idr), crps.G.para = list("points.cdf" = input.list$ICU76$rq), method = NA, p.value.method = "t")
+p.value.icu76.idrvsrq <- e_value(y = input.list$ICU76$los, crps.F.para = list("points.cdf" = input.list$ICU76$idr), crps.G.para = list("points.cdf" = input.list$ICU76$rq), method = NA, p.value.method = "t")
 p.value.icu76.idrvscox <- e_value(y = input.list$ICU76$los, crps.F.para = list("points.cdf" = input.list$ICU76$idr), crps.G.para = list("points.cdf" = input.list$ICU76$cox), method = NA, p.value.method = "t")
-p.value.icu76.rqvsidr  <- e_value(y = input.list$ICU76$los, crps.F.para = list("points.cdf" = input.list$ICU76$rq), crps.G.para = list("points.cdf" = input.list$ICU76$idr), method = NA, p.value.method = "t")
-p.value.icu76.rqvscox  <- e_value(y = input.list$ICU76$los, crps.F.para = list("points.cdf" = input.list$ICU76$rq), crps.G.para = list("points.cdf" = input.list$ICU76$cox), method = NA, p.value.method = "t")
+p.value.icu76.rqvsidr <- e_value(y = input.list$ICU76$los, crps.F.para = list("points.cdf" = input.list$ICU76$rq), crps.G.para = list("points.cdf" = input.list$ICU76$idr), method = NA, p.value.method = "t")
+p.value.icu76.rqvscox <- e_value(y = input.list$ICU76$los, crps.F.para = list("points.cdf" = input.list$ICU76$rq), crps.G.para = list("points.cdf" = input.list$ICU76$cox), method = NA, p.value.method = "t")
 p.value.icu76.coxvsidr <- e_value(y = input.list$ICU76$los, crps.F.para = list("points.cdf" = input.list$ICU76$cox), crps.G.para = list("points.cdf" = input.list$ICU76$idr), method = NA, p.value.method = "t")
-p.value.icu76.coxvsrq  <- e_value(y = input.list$ICU76$los, crps.F.para = list("points.cdf" = input.list$ICU76$cox), crps.G.para = list("points.cdf" = input.list$ICU76$rq), method = NA, p.value.method = "t")
+p.value.icu76.coxvsrq <- e_value(y = input.list$ICU76$los, crps.F.para = list("points.cdf" = input.list$ICU76$cox), crps.G.para = list("points.cdf" = input.list$ICU76$rq), method = NA, p.value.method = "t")
 
-p.value.icu77.idrvsrq  <- e_value(y = input.list$ICU77$los, crps.F.para = list("points.cdf" = input.list$ICU77$idr), crps.G.para = list("points.cdf" = input.list$ICU77$rq), method = NA, p.value.method = "t")
+p.value.icu77.idrvsrq <- e_value(y = input.list$ICU77$los, crps.F.para = list("points.cdf" = input.list$ICU77$idr), crps.G.para = list("points.cdf" = input.list$ICU77$rq), method = NA, p.value.method = "t")
 p.value.icu77.idrvscox <- e_value(y = input.list$ICU77$los, crps.F.para = list("points.cdf" = input.list$ICU77$idr), crps.G.para = list("points.cdf" = input.list$ICU77$cox), method = NA, p.value.method = "t")
-p.value.icu77.rqvsidr  <- e_value(y = input.list$ICU77$los, crps.F.para = list("points.cdf" = input.list$ICU77$rq), crps.G.para = list("points.cdf" = input.list$ICU77$idr), method = NA, p.value.method = "t")
-p.value.icu77.rqvscox  <- e_value(y = input.list$ICU77$los, crps.F.para = list("points.cdf" = input.list$ICU77$rq), crps.G.para = list("points.cdf" = input.list$ICU77$cox), method = NA, p.value.method = "t")
+p.value.icu77.rqvsidr <- e_value(y = input.list$ICU77$los, crps.F.para = list("points.cdf" = input.list$ICU77$rq), crps.G.para = list("points.cdf" = input.list$ICU77$idr), method = NA, p.value.method = "t")
+p.value.icu77.rqvscox <- e_value(y = input.list$ICU77$los, crps.F.para = list("points.cdf" = input.list$ICU77$rq), crps.G.para = list("points.cdf" = input.list$ICU77$cox), method = NA, p.value.method = "t")
 p.value.icu77.coxvsidr <- e_value(y = input.list$ICU77$los, crps.F.para = list("points.cdf" = input.list$ICU77$cox), crps.G.para = list("points.cdf" = input.list$ICU77$idr), method = NA, p.value.method = "t")
-p.value.icu77.coxvsrq  <- e_value(y = input.list$ICU77$los, crps.F.para = list("points.cdf" = input.list$ICU77$cox), crps.G.para = list("points.cdf" = input.list$ICU77$rq), method = NA, p.value.method = "t")
+p.value.icu77.coxvsrq <- e_value(y = input.list$ICU77$los, crps.F.para = list("points.cdf" = input.list$ICU77$cox), crps.G.para = list("points.cdf" = input.list$ICU77$rq), method = NA, p.value.method = "t")
 
 p.value.total <-
-   tibble(icu = "ICU10", which = "cox vx idr", p.value = p.value.icu10.coxvsidr$p.value) %>%
-  add_row(icu = "ICU10", which = "cox vs rq" , p.value = p.value.icu10.coxvsrq$p.value) %>%
-  add_row(icu = "ICU10", which = "idr vs rq" , p.value = p.value.icu10.idrvsrq$p.value) %>%
-  add_row(icu = "ICU10", which = "idr vs cox", p.value = p.value.icu10.idrvscox$p.value) %>%
-  add_row(icu = "ICU10", which = "rq vs idr" , p.value = p.value.icu10.rqvsidr$p.value) %>%
-  add_row(icu = "ICU10", which = "rq vs cox" , p.value = p.value.icu10.rqvscox$p.value) %>%
+  tibble(icu = "ICU10", which = "cox vx idr", p.value = p.value.icu10.coxvsidr$p.value) %>%
+    add_row(icu = "ICU10", which = "cox vs rq", p.value = p.value.icu10.coxvsrq$p.value) %>%
+    add_row(icu = "ICU10", which = "idr vs rq", p.value = p.value.icu10.idrvsrq$p.value) %>%
+    add_row(icu = "ICU10", which = "idr vs cox", p.value = p.value.icu10.idrvscox$p.value) %>%
+    add_row(icu = "ICU10", which = "rq vs idr", p.value = p.value.icu10.rqvsidr$p.value) %>%
+    add_row(icu = "ICU10", which = "rq vs cox", p.value = p.value.icu10.rqvscox$p.value) %>%
 
-  add_row(icu = "ICU44", which = "cox vx idr", p.value = p.value.icu44.coxvsidr$p.value) %>%
-  add_row(icu = "ICU44", which = "cox vs rq" , p.value = p.value.icu44.coxvsrq$p.value) %>%
-  add_row(icu = "ICU44", which = "idr vs rq" , p.value = p.value.icu44.idrvsrq$p.value) %>%
-  add_row(icu = "ICU44", which = "idr vs cox", p.value = p.value.icu44.idrvscox$p.value) %>%
-  add_row(icu = "ICU44", which = "rq vs idr" , p.value = p.value.icu44.rqvsidr$p.value) %>%
-  add_row(icu = "ICU44", which = "rq vs cox" , p.value = p.value.icu44.rqvscox$p.value) %>%
+    add_row(icu = "ICU44", which = "cox vx idr", p.value = p.value.icu44.coxvsidr$p.value) %>%
+    add_row(icu = "ICU44", which = "cox vs rq", p.value = p.value.icu44.coxvsrq$p.value) %>%
+    add_row(icu = "ICU44", which = "idr vs rq", p.value = p.value.icu44.idrvsrq$p.value) %>%
+    add_row(icu = "ICU44", which = "idr vs cox", p.value = p.value.icu44.idrvscox$p.value) %>%
+    add_row(icu = "ICU44", which = "rq vs idr", p.value = p.value.icu44.rqvsidr$p.value) %>%
+    add_row(icu = "ICU44", which = "rq vs cox", p.value = p.value.icu44.rqvscox$p.value) %>%
 
-  add_row(icu = "ICU65", which = "cox vx idr", p.value = p.value.icu65.coxvsidr$p.value) %>%
-  add_row(icu = "ICU65", which = "cox vs rq" , p.value = p.value.icu65.coxvsrq$p.value) %>%
-  add_row(icu = "ICU65", which = "idr vs rq" , p.value = p.value.icu65.idrvsrq$p.value) %>%
-  add_row(icu = "ICU65", which = "idr vs cox", p.value = p.value.icu65.idrvscox$p.value) %>%
-  add_row(icu = "ICU65", which = "rq vs idr" , p.value = p.value.icu65.rqvsidr$p.value) %>%
-  add_row(icu = "ICU65", which = "rq vs cox" , p.value = p.value.icu65.rqvscox$p.value) %>%
+    add_row(icu = "ICU65", which = "cox vx idr", p.value = p.value.icu65.coxvsidr$p.value) %>%
+    add_row(icu = "ICU65", which = "cox vs rq", p.value = p.value.icu65.coxvsrq$p.value) %>%
+    add_row(icu = "ICU65", which = "idr vs rq", p.value = p.value.icu65.idrvsrq$p.value) %>%
+    add_row(icu = "ICU65", which = "idr vs cox", p.value = p.value.icu65.idrvscox$p.value) %>%
+    add_row(icu = "ICU65", which = "rq vs idr", p.value = p.value.icu65.rqvsidr$p.value) %>%
+    add_row(icu = "ICU65", which = "rq vs cox", p.value = p.value.icu65.rqvscox$p.value) %>%
 
-  add_row(icu = "ICU76", which = "cox vx idr", p.value = p.value.icu76.coxvsidr$p.value) %>%
-  add_row(icu = "ICU76", which = "cox vs rq" , p.value = p.value.icu76.coxvsrq$p.value) %>%
-  add_row(icu = "ICU76", which = "idr vs rq" , p.value = p.value.icu76.idrvsrq$p.value) %>%
-  add_row(icu = "ICU76", which = "idr vs cox", p.value = p.value.icu76.idrvscox$p.value) %>%
-  add_row(icu = "ICU76", which = "rq vs idr" , p.value = p.value.icu76.rqvsidr$p.value) %>%
-  add_row(icu = "ICU76", which = "rq vs cox" , p.value = p.value.icu76.rqvscox$p.value) %>%
+    add_row(icu = "ICU76", which = "cox vx idr", p.value = p.value.icu76.coxvsidr$p.value) %>%
+    add_row(icu = "ICU76", which = "cox vs rq", p.value = p.value.icu76.coxvsrq$p.value) %>%
+    add_row(icu = "ICU76", which = "idr vs rq", p.value = p.value.icu76.idrvsrq$p.value) %>%
+    add_row(icu = "ICU76", which = "idr vs cox", p.value = p.value.icu76.idrvscox$p.value) %>%
+    add_row(icu = "ICU76", which = "rq vs idr", p.value = p.value.icu76.rqvsidr$p.value) %>%
+    add_row(icu = "ICU76", which = "rq vs cox", p.value = p.value.icu76.rqvscox$p.value) %>%
 
-  add_row(icu = "ICU77", which = "cox vx idr", p.value = p.value.icu77.coxvsidr$p.value) %>%
-  add_row(icu = "ICU77", which = "cox vs rq" , p.value = p.value.icu77.coxvsrq$p.value) %>%
-  add_row(icu = "ICU77", which = "idr vs rq" , p.value = p.value.icu77.idrvsrq$p.value) %>%
-  add_row(icu = "ICU77", which = "idr vs cox", p.value = p.value.icu77.idrvscox$p.value) %>%
-  add_row(icu = "ICU77", which = "rq vs idr" , p.value = p.value.icu77.rqvsidr$p.value) %>%
-  add_row(icu = "ICU77", which = "rq vs cox" , p.value = p.value.icu77.rqvscox$p.value)
-p.value.dt <- p.value.total  %>%
-  tidyr::pivot_wider(names_from = which, values_from = p.value)
+    add_row(icu = "ICU77", which = "cox vx idr", p.value = p.value.icu77.coxvsidr$p.value) %>%
+    add_row(icu = "ICU77", which = "cox vs rq", p.value = p.value.icu77.coxvsrq$p.value) %>%
+    add_row(icu = "ICU77", which = "idr vs rq", p.value = p.value.icu77.idrvsrq$p.value) %>%
+    add_row(icu = "ICU77", which = "idr vs cox", p.value = p.value.icu77.idrvscox$p.value) %>%
+    add_row(icu = "ICU77", which = "rq vs idr", p.value = p.value.icu77.rqvsidr$p.value) %>%
+    add_row(icu = "ICU77", which = "rq vs cox", p.value = p.value.icu77.rqvscox$p.value)
+p.value.dt <- p.value.total %>%
+  mutate(p.value = round(p.value, digits = 3)) %>%
+  tidyr::pivot_wider(names_from = which, values_from = p.value) %>%
+  select(icu, 'cox vs idr' = "cox vx idr", 'cox vs rq', 'idr vs cox', 'idr vs rq', 'rq vs cox', 'rq vs idr')
 
-dt <- DT::datatable(p.value.dt, escape = FALSE, rownames = FALSE, options = list(dom = 'Bfrtip', pageLength = 15, bFilter = 0, bInfo = 0, bPaginate = 0))
+dt <- DT::datatable(p.value.dt, escape = FALSE, rownames = FALSE, options = list(dom = 'Bfrtip', pageLength = 15, bFilter = 0, bInfo = 0, bPaginate = 0, columnDefs = list(list(className = 'dt-left', targets = 0:6))))
 htmlwidgets::saveWidget(dt, tf <- tempfile(fileext = ".html"), selfcontained = FALSE)
 shell.exec(tf)
 
@@ -341,7 +404,7 @@ dt.los <- data.date %>% select(date, icu, los)
 g <- ggplot2::ggplot(dt.los, ggplot2::aes(x = date, y = los)) +
   ggplot2::geom_line(linewidth = 0.5) +
   ggplot2::theme(legend.position = "bottom") +
-  ggplot2::coord_cartesian(ylim = c(0,100)) +
+  ggplot2::coord_cartesian(ylim = c(0, 100)) +
   ggplot2::theme(plot.title = ggplot2::element_text(size = 20, color = "red"), axis.text = ggplot2::element_text(size = 12),
                  strip.text.x = ggplot2::element_text(size = 12), strip.text.y = ggplot2::element_text(size = 12),
                  axis.text.x = ggplot2::element_text(angle = 70, vjust = 0.9, hjust = 1)) +
@@ -354,15 +417,43 @@ print(g)
 dev.off()
 
 
-
 ## minimal observations needed to reject the null hypothesis
-dt <- dt.data.ex.icu10 %>% group_by(which) %>% mutate(n = 1:n()) %>% filter(e.value.alt.cons.prod >= 1) %>% slice(which.min(date)) %>% select(icu, which, n) %>% ungroup() %>%
-  add_row(dt.data.ex.icu44 %>% group_by(which) %>% mutate(n = 1:n()) %>% filter(e.value.alt.cons.prod >= 1) %>% slice(which.min(date)) %>% select(icu, which, n)) %>%
-  add_row(dt.data.ex.icu65 %>% group_by(which) %>% mutate(n = 1:n()) %>% filter(e.value.alt.cons.prod >= 1) %>% slice(which.min(date)) %>% select(icu, which, n)) %>%
-  add_row(dt.data.ex.icu76 %>% group_by(which) %>% mutate(n = 1:n()) %>% filter(e.value.alt.cons.prod >= 1) %>% slice(which.min(date)) %>% select(icu, which, n)) %>%
-  add_row(dt.data.ex.icu77 %>% group_by(which) %>% mutate(n = 1:n()) %>% filter(e.value.alt.cons.prod >= 1) %>% slice(which.min(date)) %>% select(icu, which, n))
-dt <- dt %>% tidyr::pivot_wider(names_from = which, values_from = n) %>% mutate('idr vs cox' = as.integer(NA), 'idr vs rq' = as.integer(NA)) %>% select(icu, 'cox vs idr', 'cox vs rq', 'idr vs rq', 'idr vs cox', 'rq vs idr', 'rq vs cox')
+dt <- dt.data.ex.icu10 %>%
+  group_by(which) %>%
+  mutate(n = 1:n()) %>%
+  filter(1 / e.value.alt.cons.prod <= 0.05) %>%
+  slice(which.min(date)) %>%
+  select(icu, which, n) %>%
+  ungroup() %>%
+  add_row(dt.data.ex.icu44 %>%
+            group_by(which) %>%
+            mutate(n = 1:n()) %>%
+            filter(1 / e.value.alt.cons.prod <= 0.05) %>%
+            slice(which.min(date)) %>%
+            select(icu, which, n)) %>%
+  add_row(dt.data.ex.icu65 %>%
+            group_by(which) %>%
+            mutate(n = 1:n()) %>%
+            filter(1 / e.value.alt.cons.prod <= 0.05) %>%
+            slice(which.min(date)) %>%
+            select(icu, which, n)) %>%
+  add_row(dt.data.ex.icu76 %>%
+            group_by(which) %>%
+            mutate(n = 1:n()) %>%
+            filter(1 / e.value.alt.cons.prod <= 0.05) %>%
+            slice(which.min(date)) %>%
+            select(icu, which, n)) %>%
+  add_row(dt.data.ex.icu77 %>%
+            group_by(which) %>%
+            mutate(n = 1:n()) %>%
+            filter(1 / e.value.alt.cons.prod <= 0.05) %>%
+            slice(which.min(date)) %>%
+            select(icu, which, n))
+dt <- dt %>%
+  tidyr::pivot_wider(names_from = which, values_from = n) %>%
+  mutate('idr vs cox' = as.integer(NA), 'idr vs rq' = as.integer(NA), 'cox vs rq' = as.integer(NA)) %>%
+  select(icu, 'cox vs idr', 'cox vs rq', 'idr vs cox', 'idr vs rq', 'rq vs cox', 'rq vs idr')
 
-data.dt <- DT::datatable(dt, escape = FALSE, rownames = FALSE, options = list(dom = 'Bfrtip', pageLength = 15, bFilter = 0, bInfo = 0, bPaginate = 0))
+data.dt <- DT::datatable(dt, escape = FALSE, rownames = FALSE, options = list(dom = 'Bfrtip', pageLength = 15, bFilter = 0, bInfo = 0, bPaginate = 0, columnDefs = list(list(className = 'dt-left', targets = 0:6))))
 htmlwidgets::saveWidget(data.dt, tf <- tempfile(fileext = ".html"), selfcontained = FALSE)
 shell.exec(tf)
